@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank you — download Daily Log</title>
+<!-- Keep this page out of search engines: it's an unguessable delivery page. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0E1512">
+<meta name="color-scheme" content="dark">
+<link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- META PIXEL — replace PIXEL_ID. Purchase fires on load (see bottom). -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', 'PIXEL_ID');
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=PIXEL_ID&ev=Purchase&noscript=1"/></noscript>
+
+<style>
+  :root {
+    --bg: #0E1512;
+    --bg-glow: radial-gradient(1200px 600px at 50% -10%, rgba(94,211,154,0.08), transparent 60%),
+               radial-gradient(900px 500px at 15% 110%, rgba(255,122,89,0.05), transparent 60%);
+    --card: #151E19; --card-hi: #1A2620;
+    --line: rgba(255,255,255,0.07); --line-strong: rgba(255,255,255,0.14);
+    --text: #EDF3EE; --muted: #8CA094; --faint: #5C6B62;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Outfit", -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --c4: #5ED39A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { color-scheme: dark; }
+  body {
+    background: var(--bg); background-image: var(--bg-glow); background-attachment: fixed;
+    color: var(--text); font-family: var(--sans); font-weight: 300; line-height: 1.6;
+    min-height: 100vh; display: grid; place-items: center; padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .card {
+    max-width: 540px; width: 100%; text-align: center;
+    background: var(--card); border: 1px solid var(--line-strong); border-radius: 22px;
+    padding: clamp(30px, 6vw, 46px);
+    background-image: radial-gradient(600px 260px at 50% -10%, rgba(94,211,154,0.10), transparent 62%);
+    box-shadow: 0 30px 90px rgba(0,0,0,0.45);
+  }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--faint); margin-bottom: 18px; }
+  .badge {
+    width: 62px; height: 62px; border-radius: 50%; margin: 0 auto 22px;
+    display: grid; place-items: center; color: var(--c4);
+    background: color-mix(in srgb, var(--c4) 14%, transparent);
+    box-shadow: 0 0 26px color-mix(in srgb, var(--c4) 35%, transparent);
+  }
+  .badge svg { width: 30px; height: 30px; }
+  h1 { font-family: var(--serif); font-weight: 400; font-size: clamp(28px, 6vw, 40px); line-height: 1.05; letter-spacing: -0.01em; margin-bottom: 12px; }
+  h1 em { font-style: italic; color: var(--muted); }
+  .sub { color: var(--muted); font-size: 15px; margin-bottom: 30px; }
+  .btn-dl {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-weight: 700; font-size: 15px; letter-spacing: 0.04em;
+    background: var(--text); color: var(--bg); border: none; border-radius: 14px;
+    padding: 16px 30px; cursor: pointer; text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 10px 40px rgba(94,211,154,0.14);
+  }
+  .btn-dl:hover { transform: translateY(-2px); box-shadow: 0 14px 46px rgba(94,211,154,0.24); }
+  .btn-dl svg { width: 18px; height: 18px; }
+  .dl-note { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-top: 14px; }
+
+  .quickstart {
+    text-align: left; margin-top: 34px; padding-top: 28px; border-top: 1px solid var(--line);
+  }
+  .quickstart h2 { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; text-align: center; }
+  .quickstart ol { list-style: none; counter-reset: qs; display: flex; flex-direction: column; gap: 13px; }
+  .quickstart li { counter-increment: qs; display: flex; gap: 13px; align-items: flex-start; font-size: 14.5px; color: var(--muted); }
+  .quickstart li::before {
+    content: counter(qs); flex-shrink: 0;
+    width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center;
+    font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--c4);
+    background: color-mix(in srgb, var(--c4) 13%, transparent);
+  }
+  .quickstart li b { color: var(--text); font-weight: 500; }
+  code { font-family: var(--mono); font-size: 12.5px; color: var(--text); background: var(--card-hi); padding: 1px 6px; border-radius: 6px; }
+
+  .honesty {
+    margin-top: 30px; padding: 15px 17px; border-radius: 12px;
+    background: var(--card-hi); border: 1px solid var(--line);
+    font-size: 12.5px; line-height: 1.6; color: var(--muted); text-align: left;
+  }
+  .honesty b { color: var(--text); font-weight: 500; }
+  .honesty a { color: var(--c4); text-decoration: none; }
+  .honesty a:hover { text-decoration: underline; }
+
+  .foot { margin-top: 24px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+  .foot a { color: var(--faint); text-decoration: none; }
+  .foot a:hover { color: var(--text); }
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="eyebrow">Daily Log</div>
+    <div class="badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg>
+    </div>
+    <h1>Thank you. <em>It's yours.</em></h1>
+    <p class="sub">Your copy of Daily Log is ready to download. Keep the file somewhere safe — it's the whole app.</p>
+
+    <!-- ============================================================
+         DOWNLOAD
+         Level 0 (now): static link to the zip.
+         Level 1 (later): a Cloudflare Worker verifies razorpay_payment_id
+         server-side, then serves/streams the zip. To upgrade, point
+         data-download at the Worker route (e.g. /get?payment_id=...) and
+         let the Worker validate before responding — the button, the
+         payment-id read, and the Purchase event below already stay as-is.
+         ============================================================ -->
+    <a class="btn-dl" id="downloadBtn"
+       data-download="/download/daily-log-v1.1.0.zip"
+       href="/download/daily-log-v1.1.0.zip" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+      Download Daily Log
+    </a>
+    <div class="dl-note">daily-log-v1.1.0.zip · ~50 KB</div>
+
+    <div class="quickstart">
+      <h2>Quick start</h2>
+      <ol>
+        <li><b>Unzip</b> and double-click <code>daily-log.html</code> — it opens in your browser. That's it.</li>
+        <li><b>Keep the file in one folder.</b> On Chrome/Edge, click <b>Save to file</b> so it auto-saves your data alongside it.</li>
+        <li><b>Add to Home Screen</b> (optional) for a full-screen, offline app. Full guide is inside the zip.</li>
+      </ol>
+    </div>
+
+    <p class="honesty">
+      <b>A small ask.</b> This link is meant for people who bought Daily Log. It's built by one person,
+      priced fairly, and there's no DRM getting in your way. If you found this link without paying and
+      it's useful to you, please <a href="/#pricing">buy a copy</a> — it's what keeps it going. Thank you.
+    </p>
+
+    <div class="foot"><a href="/refunds.html">Refunds</a> · <a href="/terms.html">Terms</a> · <a href="/privacy.html">Privacy</a></div>
+  </main>
+
+<script>
+  // Read Razorpay's payment id (appended to the success redirect URL).
+  var params = new URLSearchParams(location.search);
+  var paymentId = params.get('razorpay_payment_id') || params.get('payment_id') || undefined;
+
+  // Purchase event. value/currency match the product.
+  if (window.fbq) {
+    fbq('track', 'Purchase', {
+      content_name: 'Daily Log',
+      value: 499, currency: 'INR',
+      // include the id when present so it can be matched to a Razorpay payment
+      transaction_id: paymentId
+    });
+  }
+
+  // ---- Level 1 upgrade hook (leave for later) ----
+  // Replace the static download with a verified one:
+  //   const res = await fetch('/get?payment_id=' + encodeURIComponent(paymentId));
+  //   if (res.ok) downloadBtn.href = (await res.json()).url; else showError();
+  // The Worker checks paymentId against the Razorpay API before responding.
+</script>
+</body>
+</html>

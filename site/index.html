@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Log — a calm habit tracker you own forever</title>
+<meta name="description" content="Daily Log is a single-file habit, task, and goal tracker. Pay once, own forever. No subscription, no cloud — your data is a file you own. ₹499, 7-day refund.">
+<meta name="theme-color" content="#0E1512">
+<meta name="color-scheme" content="dark">
+
+<!-- Open Graph / social preview (replace assets/og.png before launch) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Daily Log — a calm habit tracker you own forever">
+<meta property="og:description" content="Pay once, own forever. No subscription, no cloud — your data is a file you own.">
+<meta property="og:image" content="assets/og.png">
+
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- ============================================================
+     META PIXEL  —  replace PIXEL_ID with your real pixel id.
+     Fires ViewContent on load. InitiateCheckout fires on Buy click (see bottom).
+     ============================================================ -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', 'PIXEL_ID');
+fbq('track', 'PageView');
+fbq('track', 'ViewContent', { content_name: 'Daily Log', content_category: 'productivity', value: 499, currency: 'INR' });
+</script>
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+
+<style>
+  :root {
+    --bg: #0E1512;
+    --bg-glow: radial-gradient(1200px 600px at 50% -10%, rgba(127,178,255,0.07), transparent 60%),
+               radial-gradient(900px 500px at 15% 110%, rgba(255,122,89,0.06), transparent 60%);
+    --card: #151E19;
+    --card-hi: #1A2620;
+    --line: rgba(255,255,255,0.07);
+    --line-strong: rgba(255,255,255,0.14);
+    --text: #EDF3EE;
+    --muted: #8CA094;
+    --faint: #5C6B62;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Outfit", -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --r: 16px;
+    --c1: #FF7A59; --c2: #F2B33D; --c3: #7FB2FF; --c4: #5ED39A; --c5: #B08CFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { color-scheme: dark; scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    background-image: var(--bg-glow);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  .narrow { max-width: 640px; margin-left: auto; margin-right: auto; }
+  a { color: inherit; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--faint);
+  }
+
+  /* ---------------- hero ---------------- */
+  .hero { padding: clamp(56px, 12vw, 120px) 0 44px; text-align: center; }
+  .hero .eyebrow { margin-bottom: 22px; }
+  .hero h1 {
+    font-family: var(--serif); font-weight: 400;
+    font-size: clamp(38px, 8vw, 66px); line-height: 1.02; letter-spacing: -0.015em;
+    margin-bottom: 22px;
+  }
+  .hero h1 em { font-style: italic; color: var(--muted); }
+  .hero .lede {
+    font-size: clamp(16px, 2.4vw, 19px); color: var(--muted);
+    max-width: 540px; margin: 0 auto 34px; line-height: 1.6;
+  }
+  .cta-row { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .btn-buy {
+    display: inline-flex; align-items: baseline; gap: 12px;
+    font-family: var(--mono); font-weight: 700; font-size: 15px; letter-spacing: 0.04em;
+    background: var(--text); color: var(--bg);
+    border: none; border-radius: 14px; padding: 16px 28px; cursor: pointer;
+    text-decoration: none; transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 10px 40px rgba(94,211,154,0.12);
+  }
+  .btn-buy:hover { transform: translateY(-2px); box-shadow: 0 14px 46px rgba(94,211,154,0.22); }
+  .btn-buy .old { text-decoration: line-through; color: rgba(14,21,18,0.45); font-weight: 400; font-size: 13px; }
+  .trust {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--faint);
+  }
+  .trust span { white-space: nowrap; }
+  .trust b { color: var(--muted); font-weight: 400; }
+
+  /* ---------------- demo ---------------- */
+  .demo {
+    margin: 52px auto 0; max-width: 720px;
+    border: 1px solid var(--line-strong); border-radius: 20px;
+    background: var(--card);
+    background-image: radial-gradient(600px 300px at 50% 0%, rgba(127,178,255,0.08), transparent 60%);
+    overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,0.45);
+  }
+  .demo-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .demo-bar .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); }
+  .demo-bar .addr {
+    margin-left: 10px; font-family: var(--mono); font-size: 11px; color: var(--faint);
+  }
+  .demo-stage {
+    position: relative; aspect-ratio: 16 / 10; display: grid; place-items: center;
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,0.015) 0 12px, transparent 12px 24px);
+  }
+  .demo-stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .demo-ph { text-align: center; padding: 24px; }
+  .demo-ph .play {
+    width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 16px;
+    display: grid; place-items: center; border: 1.5px solid var(--line-strong);
+    background: color-mix(in srgb, var(--c4) 12%, transparent); color: var(--c4);
+  }
+  .demo-ph .play svg { width: 22px; height: 22px; margin-left: 3px; }
+  .demo-ph .cap { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+  .demo-ph .cap b { display: block; color: var(--muted); font-weight: 400; margin-bottom: 6px; letter-spacing: 0.06em; }
+
+  /* ---------------- section scaffolding ---------------- */
+  section { padding: 64px 0 0; }
+  .section-head { text-align: center; margin-bottom: 40px; }
+  .section-head h2 {
+    font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 5vw, 38px);
+    letter-spacing: -0.01em; margin-bottom: 10px;
+  }
+  .section-head h2 em { font-style: italic; color: var(--muted); }
+  .section-head p { color: var(--muted); max-width: 520px; margin: 0 auto; font-size: 15px; }
+
+  /* ---------------- feature beats ---------------- */
+  .beats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .beat {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 24px 22px; transition: border-color .25s ease, transform .25s ease;
+  }
+  .beat:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+  .beat .ic {
+    width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+    background: color-mix(in srgb, var(--bc) 13%, transparent); color: var(--bc); margin-bottom: 16px;
+  }
+  .beat .ic svg { width: 21px; height: 21px; }
+  .beat h3 { font-family: var(--serif); font-weight: 500; font-size: 20px; margin-bottom: 8px; }
+  .beat p { color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+
+  /* ---------------- pricing ---------------- */
+  .price-card {
+    background: var(--card); border: 1px solid var(--line-strong); border-radius: 22px;
+    padding: clamp(28px, 5vw, 44px); text-align: center; position: relative; overflow: hidden;
+    background-image: radial-gradient(600px 260px at 50% -10%, rgba(94,211,154,0.10), transparent 62%);
+  }
+  .price-tag { display: flex; align-items: baseline; justify-content: center; gap: 14px; margin-bottom: 6px; }
+  .price-tag .now { font-family: var(--serif); font-weight: 600; font-size: clamp(46px, 10vw, 66px); line-height: 1; }
+  .price-tag .old { font-family: var(--serif); font-size: 26px; color: var(--faint); text-decoration: line-through; }
+  .price-sub { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); margin-bottom: 26px; }
+  .price-list { list-style: none; display: inline-flex; flex-direction: column; gap: 12px; text-align: left; margin: 0 auto 30px; }
+  .price-list li { display: flex; align-items: center; gap: 11px; font-size: 15px; color: var(--text); }
+  .price-list .tick { color: var(--c4); flex-shrink: 0; }
+  .price-list .tick svg { width: 18px; height: 18px; display: block; }
+  .refund-line { font-size: 13.5px; color: var(--muted); margin-top: 18px; }
+  .refund-line b { color: var(--text); font-weight: 500; }
+
+  /* ---------------- FAQ ---------------- */
+  .faq { display: flex; flex-direction: column; gap: 10px; }
+  .faq details {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 4px 20px;
+  }
+  .faq details[open] { border-color: var(--line-strong); }
+  .faq summary {
+    list-style: none; cursor: pointer; padding: 16px 0;
+    font-size: 16px; font-weight: 500; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary .plus { color: var(--faint); font-family: var(--mono); transition: transform .2s ease; flex-shrink: 0; }
+  .faq details[open] summary .plus { transform: rotate(45deg); color: var(--muted); }
+  .faq .ans { padding: 0 0 18px; color: var(--muted); font-size: 14.5px; line-height: 1.65; }
+  .faq .ans code { font-family: var(--mono); font-size: 12.5px; color: var(--text); background: var(--card-hi); padding: 1px 6px; border-radius: 6px; }
+
+  /* ---------------- closing CTA ---------------- */
+  .closing { text-align: center; padding-top: 70px; }
+  .closing h2 { font-family: var(--serif); font-weight: 400; font-size: clamp(26px, 5vw, 40px); margin-bottom: 24px; letter-spacing: -0.01em; }
+  .closing h2 em { font-style: italic; color: var(--muted); }
+
+  /* ---------------- footer ---------------- */
+  footer {
+    margin-top: 70px; padding-top: 28px; border-top: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 8px 22px; justify-content: center; align-items: center;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--faint);
+  }
+  footer a { color: var(--faint); text-decoration: none; transition: color .15s ease; }
+  footer a:hover { color: var(--text); }
+  footer .sep { opacity: 0.4; }
+
+  @media (max-width: 620px) {
+    .beats { grid-template-columns: 1fr; }
+    .trust { display: flex; flex-direction: column; gap: 7px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <div class="eyebrow">Daily Log</div>
+    <h1>Your day, <em>on the record.</em></h1>
+    <p class="lede">
+      A calm, single-file tracker for your habits, your daily tasks, and the long game.
+      Pay once, own it forever — no subscription, no cloud. Your data is a file you own.
+    </p>
+    <div class="cta-row">
+      <a class="btn-buy" href="RAZORPAY_PAYMENT_PAGE_URL" data-buy>
+        Get Daily Log <span>₹499</span> <span class="old">₹999</span>
+      </a>
+      <div class="trust">
+        <span><b>One-time payment</b></span> &nbsp;·&nbsp;
+        <span><b>7-day refund</b></span> &nbsp;·&nbsp;
+        <span><b>Works offline</b></span>
+      </div>
+    </div>
+
+    <!-- ---- looping demo placeholder ---- -->
+    <div class="demo">
+      <div class="demo-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="addr">daily-log.html</span>
+      </div>
+      <div class="demo-stage">
+        <!-- Drop a looping Reel/screen-capture at assets/demo.mp4 (poster: assets/demo-poster.png).
+             Until then the placeholder below shows. -->
+        <video autoplay loop muted playsinline poster="assets/demo-poster.png" preload="none"
+               onerror="this.style.display='none'">
+          <source src="assets/demo.mp4" type="video/mp4">
+        </video>
+        <div class="demo-ph">
+          <div class="play">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="cap"><b>Product demo</b>Drop your looping Reel here</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ FEATURE BEATS ============ -->
+  <section class="narrow">
+    <div class="section-head">
+      <h2>Everything in <em>one quiet place</em></h2>
+      <p>No feeds, no notifications, no accounts. Open the file and pick up where you left off.</p>
+    </div>
+    <div class="beats">
+      <div class="beat" style="--bc:var(--c1)">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 L17.5 17.5"/><path d="M4 7 L7 4"/><path d="M17 20 L20 17"/><rect x="2.8" y="5.8" width="4.5" height="4.5" rx="1" transform="rotate(-45 5 8)"/><rect x="16.8" y="13.8" width="4.5" height="4.5" rx="1" transform="rotate(-45 19 16)"/></svg></div>
+        <h3>Habits &amp; streaks</h3>
+        <p>Design your own habits — name, colour, icon. Check them off, build streaks, and watch a 10-week record quietly fill in.</p>
+      </div>
+      <div class="beat" style="--bc:var(--c3)">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="5" height="16" rx="1.4"/><rect x="9.5" y="4" width="5" height="10" rx="1.4"/><rect x="16" y="4" width="5" height="13" rx="1.4"/></svg></div>
+        <h3>A board for each day</h3>
+        <p>A simple to-do → doing → done board, per day. Categories colour themselves. Unfinished tasks carry over to tomorrow.</p>
+      </div>
+      <div class="beat" style="--bc:var(--c4)">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div>
+        <h3>The long game</h3>
+        <p>Set goals with a horizon. Link daily tasks to them and see real progress — and weekly momentum — build over time.</p>
+      </div>
+      <div class="beat" style="--bc:var(--c5)">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h9l5 5v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M14 4v5h5"/><path d="M8 13h8M8 16h5" opacity="0.6"/></svg></div>
+        <h3>Your data, a file you own</h3>
+        <p>Everything lives on your device. Save it to a real <code style="font-family:var(--mono);font-size:12px">.json</code> file that auto-saves as you work — and export a backup anytime. No cloud, ever.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section class="narrow" id="pricing">
+    <div class="section-head">
+      <h2>One price. <em>Yours forever.</em></h2>
+    </div>
+    <div class="price-card">
+      <div class="price-tag">
+        <span class="now">₹499</span>
+        <span class="old">₹999</span>
+      </div>
+      <div class="price-sub">Launch price · one-time</div>
+      <ul class="price-list">
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg></span> Pay once — no subscription, ever</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg></span> Own the file forever, works offline</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5 10 17.5 19 7"/></svg></span> Free updates to the current version</li>
+      </ul>
+      <div class="cta-row">
+        <a class="btn-buy" href="RAZORPAY_PAYMENT_PAGE_URL" data-buy>
+          Get Daily Log <span>₹499</span> <span class="old">₹999</span>
+        </a>
+      </div>
+      <p class="refund-line"><b>7-day, no-questions refund.</b> If it's not for you, email us and we'll refund you in full.</p>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="narrow">
+    <div class="section-head"><h2>Good questions</h2></div>
+    <div class="faq">
+      <details>
+        <summary>What do I actually get? <span class="plus">+</span></summary>
+        <div class="ans">A single <code>daily-log.html</code> file (plus a short start-here guide). Open it in your browser — that's the whole app. No install, no account, no setup.</div>
+      </details>
+      <details>
+        <summary>Which browser do I need? <span class="plus">+</span></summary>
+        <div class="ans">Any modern browser works. For the one-click <b>Save to file</b> auto-save, use <b>Chrome</b> or <b>Edge</b> (desktop). On other browsers you get the same app with manual Export/Import for backups.</div>
+      </details>
+      <details>
+        <summary>Does it work offline? <span class="plus">+</span></summary>
+        <div class="ans">Yes — completely. It's just a local file, so there's nothing to load from the internet. You can even add it to your home screen and use it like an app.</div>
+      </details>
+      <details>
+        <summary>Where is my data stored? <span class="plus">+</span></summary>
+        <div class="ans">On your device only. It lives in your browser's local storage and, if you choose, in a <code>.json</code> file you keep. We never see it — there is no server. Back it up by keeping the file or using Export.</div>
+      </details>
+      <details>
+        <summary>Is this a subscription? <span class="plus">+</span></summary>
+        <div class="ans">No. One payment, yours forever. No recurring charges, no upsells.</div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ CLOSING CTA ============ -->
+  <section class="closing narrow">
+    <h2>Start keeping <em>the record.</em></h2>
+    <div class="cta-row">
+      <a class="btn-buy" href="RAZORPAY_PAYMENT_PAGE_URL" data-buy>
+        Get Daily Log <span>₹499</span> <span class="old">₹999</span>
+      </a>
+      <div class="trust"><span><b>One-time payment</b></span> &nbsp;·&nbsp; <span><b>7-day refund</b></span></div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <span>© Daily Log</span>
+    <span class="sep">·</span>
+    <a href="refunds.html">Refunds</a>
+    <span class="sep">·</span>
+    <a href="terms.html">Terms</a>
+    <span class="sep">·</span>
+    <a href="privacy.html">Privacy</a>
+  </footer>
+
+</div>
+
+<script>
+  // InitiateCheckout fires as the buyer heads to the payment page.
+  document.querySelectorAll('[data-buy]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      if (window.fbq) fbq('track', 'InitiateCheckout', { content_name: 'Daily Log', value: 499, currency: 'INR' });
+      // The link then navigates to RAZORPAY_PAYMENT_PAGE_URL as normal.
+    });
+  });
+</script>
+</body>
+</html>

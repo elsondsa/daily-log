@@ -1,0 +1,20 @@
+# Personal / scratch notes — may contain secrets. NEVER commit.
+Notes
+Notes.*
+*.notes
+
+# Local user data exports (from the app's Save-to-file / Export)
+daily-log-data.json
+daily-log-*.json
+
+# Build artifacts
+/dist/
+*.zip
+# ...but the released buyer zip must be committed so Cloudflare Pages serves it
+!site/download/*.zip
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
