@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Log</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1512;
+    --bg-glow: radial-gradient(1200px 600px at 50% -10%, rgba(127,178,255,0.06), transparent 60%),
+               radial-gradient(900px 500px at 15% 110%, rgba(255,122,89,0.05), transparent 60%);
+    --card: #151E19;
+    --card-hi: #1A2620;
+    --line: rgba(255,255,255,0.07);
+    --line-strong: rgba(255,255,255,0.14);
+    --text: #EDF3EE;
+    --muted: #8CA094;
+    --faint: #5C6B62;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Outfit", -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --r: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { color-scheme: dark; }
+  body {
+    background: var(--bg);
+    background-image: var(--bg-glow);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    min-height: 100vh;
+    padding: clamp(24px, 5vw, 56px) 18px 72px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .narrow { max-width: 620px; margin: 0 auto; }
+
+  /* ================= header ================= */
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 14px;
+    animation: rise .5s ease both;
+  }
+  .day-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(34px, 8vw, 46px);
+    line-height: 1.02;
+    letter-spacing: -0.01em;
+    animation: rise .5s .05s ease both;
+  }
+  .day-title em {
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.52em;
+    margin-left: 14px;
+    letter-spacing: 0.01em;
+  }
+
+  .datebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 24px 0 18px;
+    animation: rise .5s .15s ease both;
+  }
+  .nav-btn {
+    width: 38px; height: 38px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 17px;
+    cursor: pointer;
+    transition: all .15s ease;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .nav-btn:hover { border-color: var(--line-strong); color: var(--text); transform: translateY(-1px); }
+  .datebar input[type="date"] {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 12px;
+    height: 38px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s ease;
+  }
+  .datebar input[type="date"]:hover { border-color: var(--line-strong); }
+  .datebar input::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+  .today-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: none;
+    background: var(--text);
+    color: var(--bg);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform .15s ease;
+    flex-shrink: 0;
+  }
+  .today-btn:hover { transform: translateY(-1px); }
+  .today-btn.hidden { display: none; }
+
+  /* ================= tabs ================= */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 26px;
+    animation: rise .5s .18s ease both;
+  }
+  .tab {
+    flex: 1;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 9px 0;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--faint);
+    cursor: pointer;
+    transition: all .18s ease;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--muted); }
+  .tab.active {
+    background: var(--card-hi);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+  }
+  .tab .count { display: inline-block; margin-left: 5px; color: var(--faint); font-weight: 400; }
+  .view { display: none; }
+  .view.active { display: block; animation: rise .35s ease both; }
+
+  /* ================= section toolbar ================= */
+  .section-tools {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+  .ghost-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--faint);
+    border-radius: 9px;
+    padding: 7px 13px;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .ghost-btn:hover, .ghost-btn.on { color: var(--text); border-color: var(--line-strong); }
+
+  /* ================= habit cards ================= */
+  .habit {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 18px 18px 16px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: border-color .3s ease;
+  }
+  .habit::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--hc) 14%, transparent), transparent 55%);
+    opacity: 0;
+    transition: opacity .4s ease;
+    pointer-events: none;
+  }
+  .habit.done { border-color: color-mix(in srgb, var(--hc) 35%, transparent); }
+  .habit.done::before { opacity: 1; }
+
+  .habit-top { display: flex; align-items: center; gap: 14px; position: relative; }
+  .habit-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--hc) 12%, transparent);
+    color: var(--hc);
+    flex-shrink: 0;
+    transition: background .3s ease;
+  }
+  .habit.done .habit-icon { background: color-mix(in srgb, var(--hc) 22%, transparent); }
+  .habit-icon svg { width: 20px; height: 20px; }
+
+  .habit-meta { flex: 1; min-width: 0; }
+  .habit-name { font-size: 16px; font-weight: 500; letter-spacing: 0.01em; }
+  .habit-streak {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--faint);
+    margin-top: 3px;
+    letter-spacing: 0.05em;
+  }
+  .habit-streak b { color: var(--hc); font-weight: 700; }
+
+  .toggle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line-strong);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: grid; place-items: center;
+    transition: all .2s ease;
+  }
+  .toggle:hover { border-color: var(--hc); transform: scale(1.05); }
+  .toggle svg { width: 20px; height: 20px; stroke: var(--bg); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .toggle svg path { stroke-dasharray: 24; stroke-dashoffset: 24; }
+  .habit.done .toggle { background: var(--hc); border-color: var(--hc); box-shadow: 0 0 18px color-mix(in srgb, var(--hc) 45%, transparent); }
+  .habit.done .toggle svg path { animation: draw .35s .05s ease forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .note {
+    margin-top: 14px;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    background: transparent;
+    padding: 8px 2px;
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--text);
+    transition: border-color .2s ease;
+  }
+  .note::placeholder { color: var(--faint); }
+  .note:focus { outline: none; border-bottom-color: var(--hc); }
+
+  .empty-msg {
+    background: var(--card);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--r);
+    padding: 30px 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13.5px;
+  }
+
+  .future-note {
+    background: var(--card);
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--r);
+    padding: 30px 24px;
+    text-align: center;
+  }
+  .future-note .fn-title { font-family: var(--serif); font-style: italic; font-size: 20px; margin-bottom: 8px; }
+  .future-note .fn-sub { font-size: 13.5px; color: var(--muted); line-height: 1.55; max-width: 380px; margin: 0 auto 18px; }
+  .future-note .fn-btn {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 10px 18px; border-radius: 10px; border: 1px solid var(--line-strong);
+    background: transparent; color: var(--text); cursor: pointer; transition: all .15s ease;
+  }
+  .future-note .fn-btn:hover { background: var(--text); color: var(--bg); }
+
+  /* ================= habit settings panel ================= */
+  .settings {
+    background: var(--card);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r);
+    padding: 16px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .settings.open { display: block; animation: rise .3s ease both; }
+  .settings h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .set-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 6px;
+    border-bottom: 1px solid var(--line);
+  }
+  .set-row:last-of-type { border-bottom: none; }
+  .set-row .mini-icon {
+    width: 30px; height: 30px;
+    border-radius: 9px;
+    display: grid; place-items: center;
+    background: color-mix(in srgb, var(--hc) 14%, transparent);
+    color: var(--hc);
+    flex-shrink: 0;
+  }
+  .set-row .mini-icon svg { width: 16px; height: 16px; }
+  .set-row .set-name { flex: 1; font-size: 14px; font-weight: 400; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .set-row .set-name small { color: var(--faint); font-family: var(--mono); font-size: 10px; margin-left: 8px; }
+  .icon-btn {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s ease;
+    display: grid; place-items: center;
+    flex-shrink: 0;
+  }
+  .icon-btn:hover:not(:disabled) { color: var(--text); border-color: var(--line-strong); }
+  .icon-btn:disabled { opacity: 0.25; cursor: default; }
+
+  .editor {
+    background: var(--card-hi);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    margin: 10px 0;
+  }
+  .editor label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin: 12px 0 7px;
+  }
+  .editor label:first-child { margin-top: 0; }
+  .editor input[type="text"] {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    border-radius: 10px;
+    height: 38px;
+    padding: 0 12px;
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--text);
+  }
+  .editor input[type="text"]:focus { outline: none; border-color: var(--line-strong); }
+  .swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+  .swatch {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform .12s ease;
+  }
+  .swatch:hover { transform: scale(1.15); }
+  .swatch.sel { border-color: var(--text); }
+  .icon-grid { display: flex; gap: 6px; flex-wrap: wrap; }
+  .icon-choice {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: grid; place-items: center;
+    transition: all .12s ease;
+  }
+  .icon-choice svg { width: 17px; height: 17px; }
+  .icon-choice:hover { border-color: var(--line-strong); color: var(--text); }
+  .icon-choice.sel { border-color: var(--ec); color: var(--ec); background: color-mix(in srgb, var(--ec) 12%, transparent); }
+  .editor-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+  .btn-primary {
+    font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    height: 36px; padding: 0 18px; border-radius: 10px; border: none;
+    background: var(--text); color: var(--bg); cursor: pointer; transition: transform .15s ease;
+  }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .archived-head {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--faint); margin: 16px 0 4px; padding-top: 12px; border-top: 1px dashed var(--line);
+  }
+  .set-row.arch .set-name { color: var(--faint); }
+
+  /* ================= history ================= */
+  .history {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 22px 20px 20px;
+    margin-top: 30px;
+  }
+  .history-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
+  .history-head h2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 18px; }
+  .history-head span { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--faint); text-transform: uppercase; }
+  .grid-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .grid-row:last-of-type { margin-bottom: 0; }
+  .grid-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cc); flex-shrink: 0; }
+  .grid-label {
+    font-family: var(--mono); font-size: 10.5px; width: 62px; flex-shrink: 0;
+    color: var(--muted); letter-spacing: 0.03em;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .cells { display: flex; gap: 3.5px; flex: 1; justify-content: flex-end; overflow: hidden; }
+  .cell {
+    width: 11px; height: 11px; border-radius: 3.5px;
+    background: rgba(255,255,255,0.055); flex-shrink: 0; transition: transform .12s ease;
+  }
+  .cell:hover { transform: scale(1.35); }
+  .cell.on { background: var(--cc); box-shadow: 0 0 5px color-mix(in srgb, var(--cc) 40%, transparent); }
+  .cell.today-cell { outline: 1px solid var(--line-strong); outline-offset: 1.5px; }
+
+  .stats { display: flex; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .stat { flex: 1; text-align: center; border-right: 1px solid var(--line); }
+  .stat:last-child { border-right: none; }
+  .stat .num { font-family: var(--serif); font-size: 28px; font-weight: 600; line-height: 1; }
+  .stat .num sup { font-size: 13px; color: var(--muted); font-weight: 400; }
+  .stat .lbl {
+    font-family: var(--mono); font-size: 9.5px; color: var(--faint);
+    text-transform: uppercase; letter-spacing: 0.18em; margin-top: 7px;
+  }
+
+  /* ================= tasks / kanban ================= */
+  .addbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .addbar input[type="text"], .addbar select, .addbar input[type="date"] {
+    border: 1px solid var(--line);
+    background: var(--card);
+    border-radius: 12px;
+    height: 42px;
+    padding: 0 14px;
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: 14px;
+    color: var(--text);
+    transition: border-color .15s ease;
+  }
+  .addbar input:focus, .addbar select:focus { outline: none; border-color: var(--line-strong); }
+  .addbar input::placeholder { color: var(--faint); }
+  .addbar select { font-family: var(--mono); font-size: 12px; cursor: pointer; }
+  #taskText { flex: 1 1 100%; min-width: 0; }
+  #taskCat { flex: 1; min-width: 110px; font-family: var(--mono); font-size: 12px; }
+  #taskLT { flex: 1.4; min-width: 130px; display: none; }
+  #taskLT.show { display: block; }
+  .add-btn {
+    height: 42px; padding: 0 18px; border-radius: 12px; border: none;
+    background: var(--text); color: var(--bg);
+    font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+    cursor: pointer; transition: transform .15s ease; flex-shrink: 0;
+  }
+  .add-btn:hover { transform: translateY(-1px); }
+
+  .carryover {
+    width: 100%; margin-bottom: 14px;
+    border: 1px dashed var(--line-strong); background: transparent; color: var(--muted);
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
+    border-radius: 12px; padding: 10px; cursor: pointer; transition: all .15s ease;
+  }
+  .carryover:hover { color: var(--text); border-color: var(--text); }
+  .carryover.hidden { display: none; }
+
+  .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: start; }
+  .col {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 12px;
+    min-height: 180px;
+  }
+  .col-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 2px; }
+  .col-title {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .col-title::before {
+    content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    margin-right: 7px; background: var(--col-c); vertical-align: 1px;
+  }
+  .col-count {
+    font-family: var(--mono); font-size: 10px; color: var(--faint);
+    background: rgba(255,255,255,0.05); border-radius: 999px; padding: 2px 8px;
+  }
+  .col-empty { font-family: var(--mono); font-size: 10.5px; color: var(--faint); text-align: center; padding: 28px 6px; opacity: 0.7; }
+
+  .task {
+    background: var(--card-hi);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 11px;
+    margin-bottom: 8px;
+    animation: pop .22s ease both;
+    transition: border-color .2s ease, opacity .2s ease;
+  }
+  .task:hover { border-color: var(--line-strong); }
+  .task.is-done { opacity: 0.65; }
+  .task.is-done .task-text { text-decoration: line-through; text-decoration-color: var(--faint); }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.96) translateY(4px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+  .task-chip {
+    display: inline-block;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--tc); background: color-mix(in srgb, var(--tc) 13%, transparent);
+    border-radius: 999px; padding: 3px 9px;
+  }
+  .lt-chip {
+    display: inline-block;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--lc); background: transparent;
+    border: 1px solid color-mix(in srgb, var(--lc) 45%, transparent);
+    border-radius: 999px; padding: 2px 9px;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .task-text { font-size: 13.5px; font-weight: 400; line-height: 1.45; word-break: break-word; }
+  .task-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 9px; }
+  .t-btn {
+    width: 28px; height: 28px; border-radius: 9px;
+    border: 1px solid var(--line); background: transparent; color: var(--muted);
+    font-size: 13px; line-height: 1; cursor: pointer; transition: all .15s ease;
+    display: grid; place-items: center;
+  }
+  .t-btn:hover { color: var(--text); border-color: var(--line-strong); transform: translateY(-1px); }
+  .t-btn.fwd {
+    background: color-mix(in srgb, var(--tc) 16%, transparent);
+    border-color: color-mix(in srgb, var(--tc) 35%, transparent);
+    color: var(--tc); font-weight: 700;
+  }
+  .t-btn.fwd:hover { background: var(--tc); color: var(--bg); }
+  .t-btn.del:hover { color: #FF7A59; border-color: rgba(255,122,89,0.4); }
+
+  .task-summary {
+    margin-top: 18px; text-align: center;
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em;
+    color: var(--faint); text-transform: uppercase;
+  }
+  .task-summary b { color: var(--text); font-weight: 700; }
+
+  /* ================= long term ================= */
+  .lt-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--lc);
+    border-radius: var(--r);
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    animation: pop .22s ease both;
+  }
+  .lt-card.completed { opacity: 0.6; }
+  .lt-card.completed .lt-title { text-decoration: line-through; text-decoration-color: var(--faint); }
+  .lt-top { display: flex; align-items: flex-start; gap: 12px; }
+  .lt-main { flex: 1; min-width: 0; }
+  .lt-title { font-size: 16px; font-weight: 500; word-break: break-word; }
+  .lt-eta {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.05em;
+    color: var(--faint); margin-top: 4px;
+  }
+  .lt-eta b { color: var(--text); font-weight: 700; }
+  .lt-eta .overdue { color: #FF7A59; font-weight: 700; }
+  .lt-eta .soon { color: #F2B33D; font-weight: 700; }
+  .lt-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .lt-progress { margin-top: 14px; }
+  .lt-bar {
+    height: 6px; border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+  .lt-bar > div {
+    height: 100%;
+    background: var(--lc);
+    border-radius: 999px;
+    box-shadow: 0 0 8px color-mix(in srgb, var(--lc) 50%, transparent);
+    transition: width .4s ease;
+  }
+  .lt-nums {
+    display: flex; justify-content: space-between;
+    font-family: var(--mono); font-size: 10px; color: var(--faint);
+    margin-top: 7px; letter-spacing: 0.06em;
+  }
+  .lt-nums b { color: var(--text); }
+  .lt-done-head {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--faint); margin: 22px 0 10px;
+  }
+
+  /* ================= footer ================= */
+  .databar { display: flex; gap: 10px; margin-top: 26px; justify-content: center; animation: rise .5s .45s ease both; }
+  .databar button, .databar label {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
+    border: 1px solid var(--line); background: transparent; color: var(--faint);
+    border-radius: 10px; padding: 9px 16px; cursor: pointer; transition: all .15s ease;
+  }
+  .databar button:hover, .databar label:hover { color: var(--text); border-color: var(--line-strong); }
+  #importFile { display: none; }
+
+  .saved-flash {
+    position: fixed; bottom: 22px; left: 50%;
+    transform: translateX(-50%) translateY(70px);
+    background: var(--text); color: var(--bg);
+    font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    padding: 9px 18px; border-radius: 999px;
+    transition: transform .3s cubic-bezier(.2,.9,.3,1.2);
+    pointer-events: none; z-index: 10;
+  }
+  .saved-flash.show { transform: translateX(-50%) translateY(0); }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 640px) {
+    .board { grid-template-columns: 1fr; }
+    .col { min-height: 0; }
+  }
+  @media (max-width: 480px) {
+    .grid-label { width: 52px; }
+    .cell { width: 9px; height: 9px; }
+    .day-title em { display: block; margin: 8px 0 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="narrow">
+    <header>
+      <div class="eyebrow">Daily Log</div>
+      <h1 class="day-title" id="dayTitle"></h1>
+      <div class="datebar">
+        <button class="nav-btn" id="prevDay" aria-label="Previous day">‹</button>
+        <input type="date" id="datePicker" aria-label="Pick a date">
+        <button class="nav-btn" id="nextDay" aria-label="Next day">›</button>
+        <button class="today-btn" id="jumpToday">TODAY</button>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="habits" role="tab">Habits<span class="count" id="habitTabCount"></span></button>
+        <button class="tab" data-tab="tasks" role="tab">Tasks<span class="count" id="taskTabCount"></span></button>
+        <button class="tab" data-tab="longterm" role="tab">Long term<span class="count" id="ltTabCount"></span></button>
+      </nav>
+    </header>
+  </div>
+
+  <!-- ============ HABITS VIEW ============ -->
+  <div class="view active narrow" id="view-habits">
+    <div class="section-tools">
+      <button class="ghost-btn" id="manageHabits">⚙ Manage habits</button>
+    </div>
+    <div class="settings" id="habitSettings"></div>
+    <main id="habits"></main>
+    <section class="history" id="historySection">
+      <div class="history-head">
+        <h2>The record</h2>
+        <span>Last 10 weeks</span>
+      </div>
+      <div id="grids"></div>
+      <div class="stats" id="stats"></div>
+    </section>
+  </div>
+
+  <!-- ============ TASKS VIEW ============ -->
+  <div class="view" id="view-tasks">
+    <div class="addbar">
+      <input type="text" id="taskText" placeholder="Add a task for this day…" maxlength="200">
+      <input type="text" id="taskCat" list="catList" placeholder="Category" maxlength="24">
+      <datalist id="catList"></datalist>
+      <select id="taskLT" aria-label="Link to long-term task"></select>
+      <button class="add-btn" id="addTask">ADD</button>
+    </div>
+    <button class="carryover hidden" id="carryOver"></button>
+    <div class="board">
+      <div class="col" style="--col-c: var(--faint)">
+        <div class="col-head"><span class="col-title">To do</span><span class="col-count" id="count-todo">0</span></div>
+        <div id="col-todo"></div>
+      </div>
+      <div class="col" style="--col-c: #F2B33D">
+        <div class="col-head"><span class="col-title">Doing</span><span class="col-count" id="count-doing">0</span></div>
+        <div id="col-doing"></div>
+      </div>
+      <div class="col" style="--col-c: #5ED39A">
+        <div class="col-head"><span class="col-title">Done</span><span class="col-count" id="count-done">0</span></div>
+        <div id="col-done"></div>
+      </div>
+    </div>
+    <div class="task-summary" id="taskSummary"></div>
+  </div>
+
+  <!-- ============ LONG TERM VIEW ============ -->
+  <div class="view narrow" id="view-longterm">
+    <div class="addbar">
+      <input type="text" id="ltText" placeholder="Add a long-term task — e.g. Agentic platform GA…" maxlength="120" style="flex:1 1 100%">
+      <input type="date" id="ltEta" aria-label="Target date" style="flex:1">
+      <button class="add-btn" id="addLT">ADD</button>
+    </div>
+    <div id="ltActive"></div>
+    <div id="ltDone"></div>
+  </div>
+
+  <div class="narrow">
+    <div class="databar">
+      <button id="exportBtn">Export</button>
+      <label for="importFile">Import</label>
+      <input type="file" id="importFile" accept=".json">
+    </div>
+  </div>
+</div>
+
+<div class="saved-flash" id="savedFlash">SAVED</div>
+
+<script>
+/* ============================================================
+   STORAGE KEYS
+   ============================================================ */
+const STORAGE_KEY = "habitTrackerData";   // { date: { habitId: {done, note} } }
+const TASKS_KEY   = "dailyTasksData";     // { tasks: {date: [...]}, categories: {} }
+const HCONF_KEY   = "habitsConfig";       // [ {id, name, color, icon, placeholder, archived, order} ]
+const LT_KEY      = "longTermTasks";      // [ {id, title, eta, color, status, createdAt} ]
+
+const PALETTE = ["#FF7A59", "#F2B33D", "#7FB2FF", "#5ED39A", "#B08CFF", "#FF8FB1", "#6FD6D0"];
+const STATUSES = ["todo", "doing", "done"];
+
+/* ============================================================
+   ICON SET
+   ============================================================ */
+const ICON_SET = {
+  dumbbell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 L17.5 17.5"/><path d="M4 7 L7 4"/><path d="M17 20 L20 17"/><path d="M3 5 L5 3"/><path d="M19 21 L21 19"/><rect x="2.8" y="5.8" width="4.5" height="4.5" rx="1" transform="rotate(-45 5 8)"/><rect x="16.8" y="13.8" width="4.5" height="4.5" rx="1" transform="rotate(-45 19 16)"/></svg>',
+  egg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="13.5" rx="7" ry="7.5"/><path d="M12 6 C12 6 9 9.5 9 13" opacity="0.5"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5 C4 4.7 4.7 4 5.5 4 H11 V20 H5.5 C4.7 20 4 19.3 4 18.5 Z"/><path d="M20 5.5 C20 4.7 19.3 4 18.5 4 H13 V20 H18.5 C19.3 20 20 19.3 20 18.5 Z"/><path d="M6.5 8 H9 M6.5 11 H9" opacity="0.5"/></svg>',
+  run: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14" cy="5" r="2"/><path d="M13 8.5 L9 12 L11.5 14.5 L10 20"/><path d="M13 8.5 L16 11 L19 11"/><path d="M9 12 L6 11 L4 13"/><path d="M11.5 14.5 L14.5 16.5 L15.5 20"/></svg>',
+  water: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 C12 3 6 10 6 14.5 C6 18 8.7 20.5 12 20.5 C15.3 20.5 18 18 18 14.5 C18 10 12 3 12 3 Z"/><path d="M9.5 14.5 C9.5 16 10.5 17.2 12 17.4" opacity="0.5"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13.5 A8 8 0 1 1 10.5 4 A6.5 6.5 0 0 0 20 13.5 Z"/></svg>',
+  code: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7 L3.5 12 L8 17"/><path d="M16 7 L20.5 12 L16 17"/><path d="M13.5 5 L10.5 19"/></svg>',
+  pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 4.5 L19.5 8.5 L8.5 19.5 L4 20 L4.5 15.5 Z"/><path d="M13.5 6.5 L17.5 10.5" opacity="0.5"/></svg>',
+  music: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="17" r="2.5"/><circle cx="17" cy="15" r="2.5"/><path d="M9.5 17 V6.5 L19.5 4.5 V15"/><path d="M9.5 9.5 L19.5 7.5"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3 V5 M12 19 V21 M3 12 H5 M19 12 H21 M5.6 5.6 L7 7 M17 17 L18.4 18.4 M18.4 5.6 L17 7 M7 17 L5.6 18.4"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20 C12 20 4 14.5 4 9.5 C4 7 6 5 8.5 5 C10 5 11.3 5.8 12 7 C12.7 5.8 14 5 15.5 5 C18 5 20 7 20 9.5 C20 14.5 12 20 12 20 Z"/></svg>',
+  leaf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 4 C10 4 5 9 5 15 C5 17.5 6.5 20 6.5 20 C6.5 20 7 17 10 14"/><path d="M19 4 C19 13 14 18 8 18" opacity="0.6"/></svg>'
+};
+const ICON_KEYS = Object.keys(ICON_SET);
+
+/* ============================================================
+   STATE
+   ============================================================ */
+function loadJSON(key, fallback) {
+  try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; }
+  catch { return fallback; }
+}
+let data = loadJSON(STORAGE_KEY, {});
+let tdata = loadJSON(TASKS_KEY, { tasks: {}, categories: {} });
+if (!tdata.tasks) tdata.tasks = {};
+if (!tdata.categories) tdata.categories = {};
+let hconf = loadJSON(HCONF_KEY, null);
+let ltasks = loadJSON(LT_KEY, []);
+
+// migrate: seed habit config from the original hardcoded three
+if (!hconf) {
+  hconf = [
+    { id: "exercise", name: "Exercise",            color: "#FF7A59", icon: "dumbbell", placeholder: "What did you do? — 30 min run, gym: legs…", archived: false },
+    { id: "protein",  name: "Protein intake",      color: "#F2B33D", icon: "egg",      placeholder: "Roughly how much? — ~120 g…", archived: false },
+    { id: "learning", name: "Learn something new", color: "#7FB2FF", icon: "book",     placeholder: "What did you learn today?", archived: false }
+  ];
+  localStorage.setItem(HCONF_KEY, JSON.stringify(hconf));
+}
+
+let currentDate = todayKey();
+let saveTimer = null;
+let editingId = null;       // habit currently being edited ("__new" for the add form)
+let editorDraft = null;     // {name, color, icon, placeholder}
+let settingsOpen = false;
+
+const activeHabits = () => hconf.filter(h => !h.archived);
+const archivedHabits = () => hconf.filter(h => h.archived);
+const activeLTs = () => ltasks.filter(t => t.status === "active");
+
+/* ---------- persistence ---------- */
+function persistHabits()  { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); flashSaved(); }
+function persistTasks()   { localStorage.setItem(TASKS_KEY, JSON.stringify(tdata)); flashSaved(); }
+function persistHConf()   { localStorage.setItem(HCONF_KEY, JSON.stringify(hconf)); flashSaved(); }
+function persistLT()      { localStorage.setItem(LT_KEY, JSON.stringify(ltasks)); flashSaved(); }
+function flashSaved() {
+  const el = document.getElementById("savedFlash");
+  el.classList.add("show");
+  clearTimeout(flashSaved.t);
+  flashSaved.t = setTimeout(() => el.classList.remove("show"), 1100);
+}
+
+/* ---------- helpers ---------- */
+function todayKey() { return dateToKey(new Date()); }
+function dateToKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function keyToDate(k) { const [y,m,d] = k.split("-").map(Number); return new Date(y, m-1, d); }
+function shiftDate(key, days) { const d = keyToDate(key); d.setDate(d.getDate()+days); return dateToKey(d); }
+function uid(prefix) { return prefix + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+
+/* ============================================================
+   HABITS — data
+   ============================================================ */
+function entry(dateKey, habitId) {
+  return (data[dateKey] && data[dateKey][habitId]) || { done: false, note: "" };
+}
+function setEntry(dateKey, habitId, patch) {
+  if (!data[dateKey]) data[dateKey] = {};
+  data[dateKey][habitId] = { ...entry(dateKey, habitId), ...patch };
+  persistHabits();
+}
+function streak(habitId) {
+  let count = 0;
+  let k = todayKey();
+  if (!entry(k, habitId).done) k = shiftDate(k, -1);
+  while (entry(k, habitId).done) { count++; k = shiftDate(k, -1); }
+  return count;
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+function renderHeader() {
+  const d = keyToDate(currentDate);
+  const isToday = currentDate === todayKey();
+  const weekday = d.toLocaleDateString(undefined, { weekday: "long" });
+  const rest = d.toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" });
+  let title = weekday;
+  if (isToday) title = "Today";
+  else if (currentDate === shiftDate(todayKey(), 1)) title = "Tomorrow";
+  else if (currentDate === shiftDate(todayKey(), -1)) title = "Yesterday";
+  document.getElementById("dayTitle").innerHTML = escapeHTML(title) + `<em>${rest}</em>`;
+  document.getElementById("datePicker").value = currentDate;
+  document.getElementById("jumpToday").classList.toggle("hidden", isToday);
+
+  // tab counts
+  const ah = activeHabits();
+  const doneCount = currentDate > todayKey() ? 0 : ah.filter(h => entry(currentDate, h.id).done).length;
+  document.getElementById("habitTabCount").textContent =
+    ah.length && currentDate <= todayKey() ? `· ${doneCount}/${ah.length}` : "";
+  const openToday = tasksFor(todayKey()).filter(t => t.status !== "done").length;
+  document.getElementById("taskTabCount").textContent = openToday ? "· " + openToday : "";
+  const nActive = activeLTs().length;
+  document.getElementById("ltTabCount").textContent = nActive ? "· " + nActive : "";
+}
+
+/* ============================================================
+   HABITS — daily cards
+   ============================================================ */
+function renderHabits() {
+  const root = document.getElementById("habits");
+  root.innerHTML = "";
+  const habits = activeHabits();
+
+  if (currentDate > todayKey()) {
+    root.innerHTML = `
+      <div class="future-note">
+        <div class="fn-title">Habits unlock on the day</div>
+        <div class="fn-sub">You can't log a habit for a day that hasn't happened yet — but you can plan ahead.</div>
+        <button class="fn-btn" id="planTasksBtn">Plan tasks for this day →</button>
+      </div>`;
+    document.getElementById("planTasksBtn").addEventListener("click", () => switchTab("tasks"));
+    return;
+  }
+
+  if (!habits.length) {
+    root.innerHTML = `<div class="empty-msg">No habits yet. Open <b>⚙ Manage habits</b> above to add your first one.</div>`;
+    return;
+  }
+
+  habits.forEach(h => {
+    const e = entry(currentDate, h.id);
+    const s = streak(h.id);
+    const card = document.createElement("div");
+    card.className = "habit" + (e.done ? " done" : "");
+    card.style.setProperty("--hc", h.color);
+    card.innerHTML = `
+      <div class="habit-top">
+        <div class="habit-icon">${ICON_SET[h.icon] || ICON_SET.sun}</div>
+        <div class="habit-meta">
+          <div class="habit-name">${escapeHTML(h.name)}</div>
+          <div class="habit-streak">${s > 0 ? `<b>${s}</b> day streak` : "no streak yet"}</div>
+        </div>
+        <button class="toggle" aria-label="Mark ${escapeHTML(h.name)} done" aria-pressed="${e.done}">
+          <svg viewBox="0 0 24 24"><path d="M5 12.5 L10 17.5 L19 7"/></svg>
+        </button>
+      </div>
+      <input class="note" type="text" placeholder="${escapeHTML(h.placeholder || "Add a note…")}">
+    `;
+    const noteInput = card.querySelector(".note");
+    noteInput.value = e.note || "";
+    card.querySelector(".toggle").addEventListener("click", () => {
+      setEntry(currentDate, h.id, { done: !entry(currentDate, h.id).done });
+      card.classList.toggle("done");
+      card.querySelector(".toggle").setAttribute("aria-pressed", entry(currentDate, h.id).done);
+      card.querySelector(".habit-streak").innerHTML =
+        streak(h.id) > 0 ? `<b>${streak(h.id)}</b> day streak` : "no streak yet";
+      renderHeader();
+      renderGrids();
+    });
+    noteInput.addEventListener("input", () => {
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        setEntry(currentDate, h.id, { note: noteInput.value });
+        renderGrids();
+      }, 400);
+    });
+    root.appendChild(card);
+  });
+}
+
+/* ============================================================
+   HABITS — settings panel
+   ============================================================ */
+function blankDraft() {
+  const used = activeHabits().length + archivedHabits().length;
+  return { name: "", color: PALETTE[used % PALETTE.length], icon: ICON_KEYS[used % ICON_KEYS.length], placeholder: "" };
+}
+
+function renderSettings() {
+  const panel = document.getElementById("habitSettings");
+  panel.classList.toggle("open", settingsOpen);
+  document.getElementById("manageHabits").classList.toggle("on", settingsOpen);
+  if (!settingsOpen) { panel.innerHTML = ""; return; }
+
+  panel.innerHTML = "<h3>Manage habits</h3>";
+  const act = activeHabits();
+
+  act.forEach((h, i) => {
+    if (editingId === h.id) { panel.appendChild(buildEditor(h)); return; }
+    const row = document.createElement("div");
+    row.className = "set-row";
+    row.style.setProperty("--hc", h.color);
+    row.innerHTML = `
+      <div class="mini-icon">${ICON_SET[h.icon] || ICON_SET.sun}</div>
+      <div class="set-name">${escapeHTML(h.name)}<small>${streak(h.id) > 0 ? streak(h.id) + "d streak" : ""}</small></div>
+      <button class="icon-btn up" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
+      <button class="icon-btn dn" title="Move down" ${i === act.length - 1 ? "disabled" : ""}>↓</button>
+      <button class="icon-btn ed" title="Edit">✎</button>
+      <button class="icon-btn ar" title="Archive (keeps history)">⌫</button>
+    `;
+    row.querySelector(".up").addEventListener("click", () => moveHabit(h.id, -1));
+    row.querySelector(".dn").addEventListener("click", () => moveHabit(h.id, 1));
+    row.querySelector(".ed").addEventListener("click", () => { editingId = h.id; editorDraft = { ...h }; renderSettings(); });
+    row.querySelector(".ar").addEventListener("click", () => {
+      h.archived = true;
+      persistHConf();
+      renderAll();
+    });
+    panel.appendChild(row);
+  });
+
+  // add-new
+  if (editingId === "__new") {
+    panel.appendChild(buildEditor(null));
+  } else {
+    const addRow = document.createElement("div");
+    addRow.style.marginTop = "12px";
+    addRow.innerHTML = `<button class="ghost-btn" style="width:100%">+ Add habit</button>`;
+    addRow.querySelector("button").addEventListener("click", () => {
+      editingId = "__new";
+      editorDraft = blankDraft();
+      renderSettings();
+    });
+    panel.appendChild(addRow);
+  }
+
+  // archived
+  const arch = archivedHabits();
+  if (arch.length) {
+    const head = document.createElement("div");
+    head.className = "archived-head";
+    head.textContent = "Archived — history kept";
+    panel.appendChild(head);
+    arch.forEach(h => {
+      const row = document.createElement("div");
+      row.className = "set-row arch";
+      row.style.setProperty("--hc", h.color);
+      row.innerHTML = `
+        <div class="mini-icon">${ICON_SET[h.icon] || ICON_SET.sun}</div>
+        <div class="set-name">${escapeHTML(h.name)}</div>
+        <button class="icon-btn" title="Restore">↻</button>
+      `;
+      row.querySelector("button").addEventListener("click", () => {
+        h.archived = false;
+        persistHConf();
+        renderAll();
+      });
+      panel.appendChild(row);
+    });
+  }
+}
+
+function buildEditor(existing) {
+  const box = document.createElement("div");
+  box.className = "editor";
+  box.style.setProperty("--ec", editorDraft.color);
+  box.innerHTML = `
+    <label>Name</label>
+    <input type="text" id="edName" maxlength="40" placeholder="e.g. Meditate">
+    <label>Color</label>
+    <div class="swatches">${PALETTE.map(c =>
+      `<button class="swatch ${c === editorDraft.color ? "sel" : ""}" data-c="${c}" style="background:${c}" title="${c}"></button>`).join("")}
+    </div>
+    <label>Icon</label>
+    <div class="icon-grid">${ICON_KEYS.map(k =>
+      `<button class="icon-choice ${k === editorDraft.icon ? "sel" : ""}" data-i="${k}" title="${k}">${ICON_SET[k]}</button>`).join("")}
+    </div>
+    <label>Note placeholder (optional)</label>
+    <input type="text" id="edPh" maxlength="80" placeholder="e.g. How long? Which practice?">
+    <div class="editor-actions">
+      <button class="ghost-btn" id="edCancel">Cancel</button>
+      <button class="btn-primary" id="edSave">${existing ? "SAVE" : "ADD HABIT"}</button>
+    </div>
+  `;
+  box.querySelector("#edName").value = editorDraft.name;
+  box.querySelector("#edPh").value = editorDraft.placeholder || "";
+  box.querySelector("#edName").addEventListener("input", e => editorDraft.name = e.target.value);
+  box.querySelector("#edPh").addEventListener("input", e => editorDraft.placeholder = e.target.value);
+  box.querySelectorAll(".swatch").forEach(b => b.addEventListener("click", () => {
+    editorDraft.color = b.dataset.c;
+    box.style.setProperty("--ec", editorDraft.color);
+    box.querySelectorAll(".swatch").forEach(s => s.classList.toggle("sel", s === b));
+  }));
+  box.querySelectorAll(".icon-choice").forEach(b => b.addEventListener("click", () => {
+    editorDraft.icon = b.dataset.i;
+    box.querySelectorAll(".icon-choice").forEach(s => s.classList.toggle("sel", s === b));
+  }));
+  box.querySelector("#edCancel").addEventListener("click", () => { editingId = null; editorDraft = null; renderSettings(); });
+  box.querySelector("#edSave").addEventListener("click", () => {
+    const name = (editorDraft.name || "").trim();
+    if (!name) { box.querySelector("#edName").focus(); return; }
+    if (existing) {
+      Object.assign(existing, { name, color: editorDraft.color, icon: editorDraft.icon, placeholder: editorDraft.placeholder.trim() });
+    } else {
+      hconf.push({ id: uid("h"), name, color: editorDraft.color, icon: editorDraft.icon, placeholder: (editorDraft.placeholder || "").trim(), archived: false });
+    }
+    persistHConf();
+    editingId = null;
+    editorDraft = null;
+    renderAll();
+    settingsOpen = true; // keep panel open after save
+    renderSettings();
+  });
+  return box;
+}
+
+function moveHabit(id, dir) {
+  // reorder within the full hconf array, but relative to active ordering
+  const act = activeHabits();
+  const pos = act.findIndex(h => h.id === id);
+  const target = act[pos + dir];
+  if (!target) return;
+  const i = hconf.indexOf(act[pos]);
+  const j = hconf.indexOf(target);
+  [hconf[i], hconf[j]] = [hconf[j], hconf[i]];
+  persistHConf();
+  renderAll();
+  settingsOpen = true;
+  renderSettings();
+}
+
+/* ============================================================
+   HABITS — history
+   ============================================================ */
+function renderGrids() {
+  const DAYS = 70;
+  const root = document.getElementById("grids");
+  root.innerHTML = "";
+  const habits = activeHabits();
+  document.getElementById("historySection").style.display = habits.length ? "" : "none";
+  habits.forEach(h => {
+    const row = document.createElement("div");
+    row.className = "grid-row";
+    row.style.setProperty("--cc", h.color);
+    row.innerHTML = `<div class="grid-dot"></div><div class="grid-label" title="${escapeHTML(h.name)}">${escapeHTML(h.name.split(" ")[0])}</div>`;
+    const cells = document.createElement("div");
+    cells.className = "cells";
+    for (let i = DAYS - 1; i >= 0; i--) {
+      const k = shiftDate(todayKey(), -i);
+      const e = entry(k, h.id);
+      const c = document.createElement("div");
+      c.className = "cell" + (e.done ? " on" : "") + (k === todayKey() ? " today-cell" : "");
+      c.title = k + (e.done ? " ✓" : "") + (e.note ? " — " + e.note : "");
+      cells.appendChild(c);
+    }
+    row.appendChild(cells);
+    root.appendChild(row);
+  });
+  renderStats();
+}
+
+function renderStats() {
+  const root = document.getElementById("stats");
+  const habits = activeHabits();
+  if (!habits.length) { root.innerHTML = ""; return; }
+  const last30 = [];
+  for (let i = 0; i < 30; i++) last30.push(shiftDate(todayKey(), -i));
+  const perfectDays = last30.filter(k => habits.every(h => entry(k, h.id).done)).length;
+  const totalChecks = last30.reduce((s, k) => s + habits.filter(h => entry(k, h.id).done).length, 0);
+  const pct = Math.round((totalChecks / (30 * habits.length)) * 100);
+  const bestStreak = Math.max(...habits.map(h => streak(h.id)));
+  root.innerHTML = `
+    <div class="stat"><div class="num">${pct}<sup>%</sup></div><div class="lbl">30-day rate</div></div>
+    <div class="stat"><div class="num">${perfectDays}</div><div class="lbl">Perfect days</div></div>
+    <div class="stat"><div class="num">${bestStreak}</div><div class="lbl">Best streak</div></div>
+  `;
+}
+
+/* ============================================================
+   TASKS
+   ============================================================ */
+function tasksFor(dateKey) {
+  if (!tdata.tasks[dateKey]) tdata.tasks[dateKey] = [];
+  return tdata.tasks[dateKey];
+}
+function catColor(name) {
+  const key = name.trim().toLowerCase();
+  if (!key) return "#8CA094";
+  if (!tdata.categories[key]) {
+    const used = Object.keys(tdata.categories).length;
+    tdata.categories[key] = PALETTE[used % PALETTE.length];
+  }
+  return tdata.categories[key];
+}
+function ltById(id) { return ltasks.find(t => t.id === id); }
+
+function addTask() {
+  const textEl = document.getElementById("taskText");
+  const catEl = document.getElementById("taskCat");
+  const ltEl = document.getElementById("taskLT");
+  const text = textEl.value.trim();
+  if (!text) { textEl.focus(); return; }
+  const cat = catEl.value.trim() || "General";
+  catColor(cat);
+  const task = { id: uid("t"), text, cat, status: "todo" };
+  if (ltEl.value) task.ltId = ltEl.value;
+  tasksFor(currentDate).push(task);
+  persistTasks();
+  textEl.value = "";
+  textEl.focus();
+  renderTasks();
+  renderLT(); // progress may change
+}
+
+function moveTask(id, dir) {
+  const t = tasksFor(currentDate).find(t => t.id === id);
+  if (!t) return;
+  const i = STATUSES.indexOf(t.status) + dir;
+  if (i < 0 || i >= STATUSES.length) return;
+  t.status = STATUSES[i];
+  persistTasks();
+  renderTasks();
+  renderLT();
+}
+
+function deleteTask(id) {
+  tdata.tasks[currentDate] = tasksFor(currentDate).filter(t => t.id !== id);
+  persistTasks();
+  renderTasks();
+  renderLT();
+}
+
+function unfinishedYesterday() {
+  const yk = shiftDate(todayKey(), -1);
+  return (tdata.tasks[yk] || []).filter(t => t.status !== "done");
+}
+function carryOverTasks() {
+  const yk = shiftDate(todayKey(), -1);
+  const pending = unfinishedYesterday();
+  if (!pending.length) return;
+  const todayList = tasksFor(todayKey());
+  pending.forEach(t => todayList.push({ ...t, id: uid("t") }));
+  tdata.tasks[yk] = (tdata.tasks[yk] || []).filter(t => t.status === "done");
+  persistTasks();
+  renderTasks();
+}
+
+function renderTasks() {
+  const list = tasksFor(currentDate);
+
+  STATUSES.forEach(st => {
+    const col = document.getElementById("col-" + st);
+    col.innerHTML = "";
+    const items = list.filter(t => t.status === st);
+    document.getElementById("count-" + st).textContent = items.length;
+    if (!items.length) {
+      col.innerHTML = `<div class="col-empty">${st === "todo" ? "Nothing queued" : st === "doing" ? "Nothing in flight" : "Nothing yet"}</div>`;
+      return;
+    }
+    items.forEach(t => {
+      const el = document.createElement("div");
+      el.className = "task" + (st === "done" ? " is-done" : "");
+      el.style.setProperty("--tc", catColor(t.cat));
+      const lt = t.ltId ? ltById(t.ltId) : null;
+      if (lt) el.style.setProperty("--lc", lt.color);
+      el.innerHTML = `
+        <div class="chips">
+          <span class="task-chip">${escapeHTML(t.cat)}</span>
+          ${lt ? `<span class="lt-chip" title="${escapeHTML(lt.title)}">◎ ${escapeHTML(lt.title)}</span>` : ""}
+        </div>
+        <div class="task-text">${escapeHTML(t.text)}</div>
+        <div class="task-actions">
+          ${st !== "todo" ? `<button class="t-btn back" title="Move back">↩</button>` : ""}
+          <button class="t-btn del" title="Delete">×</button>
+          ${st !== "done" ? `<button class="t-btn fwd" title="${st === "todo" ? "Start" : "Finish"}">✓</button>` : ""}
+        </div>
+      `;
+      const back = el.querySelector(".back");
+      const fwd = el.querySelector(".fwd");
+      if (back) back.addEventListener("click", () => moveTask(t.id, -1));
+      if (fwd) fwd.addEventListener("click", () => moveTask(t.id, 1));
+      el.querySelector(".del").addEventListener("click", () => deleteTask(t.id));
+      col.appendChild(el);
+    });
+  });
+
+  const done = list.filter(t => t.status === "done").length;
+  document.getElementById("taskSummary").innerHTML =
+    list.length ? `<b>${done}</b> of <b>${list.length}</b> done` : "No tasks for this day yet";
+
+  // carry-over
+  const co = document.getElementById("carryOver");
+  const pending = currentDate === todayKey() ? unfinishedYesterday() : [];
+  co.classList.toggle("hidden", pending.length === 0);
+  if (pending.length) co.textContent = `↧ Carry over ${pending.length} unfinished task${pending.length > 1 ? "s" : ""} from yesterday`;
+
+  // category suggestions
+  document.getElementById("catList").innerHTML = Object.keys(tdata.categories)
+    .map(c => `<option value="${escapeHTML(c.charAt(0).toUpperCase() + c.slice(1))}">`)
+    .join("");
+
+  // long-term dropdown (only when there is something to link)
+  const sel = document.getElementById("taskLT");
+  const actives = activeLTs();
+  sel.classList.toggle("show", actives.length > 0);
+  const prev = sel.value;
+  sel.innerHTML = `<option value="">No long-term link</option>` +
+    actives.map(t => `<option value="${t.id}">◎ ${escapeHTML(t.title)}</option>`).join("");
+  if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+
+  renderHeader();
+}
+
+/* ============================================================
+   LONG TERM
+   ============================================================ */
+function ltStats(ltId) {
+  let total = 0, done = 0, doneThisWeek = 0;
+  const weekAgo = shiftDate(todayKey(), -6);
+  for (const dateKey of Object.keys(tdata.tasks)) {
+    for (const t of tdata.tasks[dateKey]) {
+      if (t.ltId !== ltId) continue;
+      total++;
+      if (t.status === "done") {
+        done++;
+        if (dateKey >= weekAgo && dateKey <= todayKey()) doneThisWeek++;
+      }
+    }
+  }
+  return { total, done, doneThisWeek };
+}
+
+function etaLabel(eta) {
+  if (!eta) return `<span>No target date</span>`;
+  const d = keyToDate(eta);
+  const pretty = d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  const days = Math.round((keyToDate(eta) - keyToDate(todayKey())) / 86400000);
+  if (days < 0)  return `Due <b>${pretty}</b> · <span class="overdue">${-days} day${days === -1 ? "" : "s"} overdue</span>`;
+  if (days === 0) return `Due <b>${pretty}</b> · <span class="soon">today</span>`;
+  if (days <= 7)  return `Due <b>${pretty}</b> · <span class="soon">${days} day${days === 1 ? "" : "s"} left</span>`;
+  return `Due <b>${pretty}</b> · ${days} days left`;
+}
+
+function addLT() {
+  const textEl = document.getElementById("ltText");
+  const etaEl = document.getElementById("ltEta");
+  const title = textEl.value.trim();
+  if (!title) { textEl.focus(); return; }
+  ltasks.push({
+    id: uid("lt"),
+    title,
+    eta: etaEl.value || null,
+    color: PALETTE[ltasks.length % PALETTE.length],
+    status: "active",
+    createdAt: todayKey()
+  });
+  persistLT();
+  textEl.value = "";
+  etaEl.value = "";
+  renderLT();
+  renderTasks(); // refresh the link dropdown
+}
+
+function buildLTCard(t) {
+  const st = ltStats(t.id);
+  const pct = st.total ? Math.round((st.done / st.total) * 100) : 0;
+  const card = document.createElement("div");
+  card.className = "lt-card" + (t.status === "completed" ? " completed" : "");
+  card.style.setProperty("--lc", t.color);
+  card.innerHTML = `
+    <div class="lt-top">
+      <div class="lt-main">
+        <div class="lt-title">${escapeHTML(t.title)}</div>
+        <div class="lt-eta">${t.status === "completed" ? "Completed" : etaLabel(t.eta)}</div>
+      </div>
+      <div class="lt-actions">
+        ${t.status === "active"
+          ? `<button class="t-btn fwd" style="--tc:${t.color}" title="Mark completed">✓</button>`
+          : `<button class="t-btn" title="Reopen">↻</button>`}
+        <button class="t-btn del" title="Delete">×</button>
+      </div>
+    </div>
+    <div class="lt-progress">
+      <div class="lt-bar"><div style="width:${pct}%"></div></div>
+      <div class="lt-nums">
+        <span><b>${st.done}</b>/${st.total} linked tasks done${st.total ? ` · ${pct}%` : ""}</span>
+        <span>${st.doneThisWeek ? `<b>${st.doneThisWeek}</b> this week` : "no activity this week"}</span>
+      </div>
+    </div>
+  `;
+  const fwd = card.querySelector(".fwd");
+  if (fwd) fwd.addEventListener("click", () => { t.status = "completed"; persistLT(); renderLT(); renderTasks(); });
+  else card.querySelector(".t-btn:not(.del)").addEventListener("click", () => { t.status = "active"; persistLT(); renderLT(); renderTasks(); });
+  card.querySelector(".del").addEventListener("click", () => {
+    if (!confirm(`Delete "${t.title}"? Linked daily tasks are kept — they just lose the link.`)) return;
+    ltasks = ltasks.filter(x => x.id !== t.id);
+    persistLT();
+    renderLT();
+    renderTasks();
+  });
+  return card;
+}
+
+function renderLT() {
+  const activeRoot = document.getElementById("ltActive");
+  const doneRoot = document.getElementById("ltDone");
+  activeRoot.innerHTML = "";
+  doneRoot.innerHTML = "";
+
+  const actives = ltasks.filter(t => t.status === "active")
+    .sort((a, b) => (a.eta || "9999") < (b.eta || "9999") ? -1 : 1);
+  const completed = ltasks.filter(t => t.status === "completed");
+
+  if (!actives.length && !completed.length) {
+    activeRoot.innerHTML = `<div class="empty-msg">Nothing long-term yet. Add something with a horizon — a release, a certification, a rewrite — then link daily tasks to it from the Tasks tab.</div>`;
+  }
+  actives.forEach(t => activeRoot.appendChild(buildLTCard(t)));
+  if (completed.length) {
+    const head = document.createElement("div");
+    head.className = "lt-done-head";
+    head.textContent = "Completed";
+    doneRoot.appendChild(head);
+    completed.forEach(t => doneRoot.appendChild(buildLTCard(t)));
+  }
+  renderHeader();
+}
+
+/* ============================================================
+   TABS + NAV
+   ============================================================ */
+function switchTab(which) {
+  document.querySelectorAll(".tab").forEach(t => {
+    const on = t.dataset.tab === which;
+    t.classList.toggle("active", on);
+    t.setAttribute("aria-selected", on);
+  });
+  ["habits", "tasks", "longterm"].forEach(v =>
+    document.getElementById("view-" + v).classList.toggle("active", v === which));
+}
+document.querySelectorAll(".tab").forEach(t =>
+  t.addEventListener("click", () => switchTab(t.dataset.tab)));
+
+document.getElementById("manageHabits").addEventListener("click", () => {
+  settingsOpen = !settingsOpen;
+  if (!settingsOpen) { editingId = null; editorDraft = null; }
+  renderSettings();
+});
+
+function renderAll() { renderHeader(); renderHabits(); renderGrids(); renderTasks(); renderLT(); renderSettings(); }
+
+document.getElementById("prevDay").addEventListener("click", () => { currentDate = shiftDate(currentDate, -1); renderAll(); });
+document.getElementById("nextDay").addEventListener("click", () => { currentDate = shiftDate(currentDate, 1); renderAll(); });
+document.getElementById("jumpToday").addEventListener("click", () => { currentDate = todayKey(); renderAll(); });
+document.getElementById("datePicker").addEventListener("change", (e) => {
+  if (e.target.value) { currentDate = e.target.value; renderAll(); }
+  else { e.target.value = currentDate; }
+});
+
+document.getElementById("addTask").addEventListener("click", addTask);
+document.getElementById("taskText").addEventListener("keydown", e => { if (e.key === "Enter") addTask(); });
+document.getElementById("taskCat").addEventListener("keydown", e => { if (e.key === "Enter") addTask(); });
+document.getElementById("carryOver").addEventListener("click", carryOverTasks);
+
+document.getElementById("addLT").addEventListener("click", addLT);
+document.getElementById("ltText").addEventListener("keydown", e => { if (e.key === "Enter") addLT(); });
+
+/* ============================================================
+   EXPORT / IMPORT
+   ============================================================ */
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const payload = { version: 4, habits: data, tasks: tdata, habitsConfig: hconf, longTerm: ltasks };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "daily-log-" + todayKey() + ".json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("importFile").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = JSON.parse(reader.result);
+      if (typeof imported !== "object" || imported === null) throw new Error();
+      if (imported.habits || imported.tasks || imported.habitsConfig || imported.longTerm) {
+        data = { ...data, ...(imported.habits || {}) };
+        if (imported.tasks) {
+          tdata.tasks = { ...tdata.tasks, ...(imported.tasks.tasks || {}) };
+          tdata.categories = { ...tdata.categories, ...(imported.tasks.categories || {}) };
+        }
+        if (Array.isArray(imported.habitsConfig)) {
+          imported.habitsConfig.forEach(ih => {
+            const mine = hconf.find(h => h.id === ih.id);
+            if (mine) Object.assign(mine, ih);
+            else hconf.push(ih);
+          });
+        }
+        if (Array.isArray(imported.longTerm)) {
+          imported.longTerm.forEach(it => {
+            const mine = ltasks.find(t => t.id === it.id);
+            if (mine) Object.assign(mine, it);
+            else ltasks.push(it);
+          });
+        }
+      } else {
+        data = { ...data, ...imported }; // v1 habit-only export
+      }
+      persistHabits(); persistTasks(); persistHConf(); persistLT();
+      renderAll();
+    } catch {
+      alert("Could not read that file. It needs to be a JSON export from this tracker.");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+renderAll();
+</script>
+</body>
+</html>
