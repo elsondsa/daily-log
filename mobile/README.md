@@ -5,7 +5,24 @@ offline Android APK**. The app is stored *inside* the APK — no hosted URL, no
 server. `daily-log.html` stays the single source of truth; `sync-web.js` copies
 it into `www/` at build time.
 
-## Prerequisites (install once)
+## Easiest: build in the cloud (GitHub Actions — no local SDK)
+You don't need Android Studio locally. Two workflows in `.github/workflows/`:
+
+1. **Create signing keystore** (one-time, only for release builds): Actions tab →
+   *Create signing keystore* → Run. Download the `keystore-SECRET` artifact, copy
+   the 4 values from `SECRETS.txt` into repo secrets (Settings → Secrets and
+   variables → Actions), keep the `.jks` safe, then **delete the artifact**.
+2. **Build APK**: Actions tab → *Build APK* → Run workflow.
+   - `build_type = debug` → no secrets needed; grab the APK from the run's
+     Artifacts and sideload it to test.
+   - `build_type = release` → signs it with your secrets; tick `deploy_to_site`
+     to also commit it into `site/download/` so Cloudflare serves it and the
+     thank-you button resolves.
+
+The rest of this file covers the **local** build (`build-apk.ps1`), which does
+the same thing on your own machine if you prefer.
+
+## Prerequisites (local build — install once)
 - **Node.js** (already used by the site build)
 - **JDK 17** — set `JAVA_HOME`
 - **Android Studio + Android SDK** (SDK Platform + Build-Tools) — set

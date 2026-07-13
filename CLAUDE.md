@@ -164,10 +164,18 @@ update the Razorpay success-redirect URL + the confirmation-email link.
   through the Filesystem + Share plugins (a WebView can't do the blob download). The
   bridge no-ops on web (checks `Capacitor.isNativePlatform()`), so the zip/web build is
   unaffected. "Save to file" auto-hides on Android (FSA unsupported).
-- `build-apk.ps1`: `npm install` → sync → (first run) `cap add android` + icon gen →
-  `cap sync` → Gradle → (release) zipalign+apksigner → copies to `site/download/`.
-  Needs JDK 17 + Android SDK on the build host. **The APK compile and the Export bridge
-  are NOT verified here (no Android SDK / device) — test on a device before shipping.**
+- **Cloud build (recommended, no local SDK):** `.github/workflows/build-apk.yml` —
+  Actions tab → "Build APK" → Run (debug = no secrets; release = signs from repo
+  secrets, optional `deploy_to_site` commits it to `site/download/`). One-time
+  `.github/workflows/create-keystore.yml` generates the keystore + passwords as a
+  private artifact so no local JDK is needed. Release-signing secrets:
+  `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
+  `ANDROID_KEY_PASSWORD`.
+- **Local build:** `build-apk.ps1`: `npm install` → sync → (first run) `cap add android`
+  + icon gen → `cap sync` → Gradle → (release) zipalign+apksigner → copies to
+  `site/download/`. Needs JDK 17 + Android SDK on the build host. **The APK compile and
+  the Export bridge are NOT verified here (no Android SDK / device) — test on a device
+  before shipping.**
 - **Distribute as a direct download, NOT via Play Store** — Play Billing would conflict
   with the Razorpay one-time-purchase model. Sideload = enable "unknown sources".
 - App icon source: `mobile/resources/icon.png` (1024², generated from the favicon).
