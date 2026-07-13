@@ -1,0 +1,9 @@
+{
+  "appId": "com.dailylog.app",
+  "appName": "Daily Log",
+  "webDir": "www",
+  "backgroundColor": "#0E1512",
+  "android": {
+    "backgroundColor": "#0E1512"
+  }
+}

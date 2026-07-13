@@ -5,6 +5,19 @@ the app footer matches the latest released entry. Format follows
 [Keep a Changelog](https://keepachangelog.com/); this project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Android app (Capacitor).** `mobile/` wraps the product into a self-contained,
+  offline APK; `build-apk.ps1` builds (debug/release), optionally signs, and
+  deploys it to `site/download/`. The product is unchanged — `daily-log.html`
+  stays the single source; `mobile/sync-web.js` copies it into `www/` and injects
+  an Android-only export bridge (`capacitor-export.js`) that saves/shares backups
+  via native plugins (a WebView can't do the browser blob-download). Distribute
+  as a direct download, not via Play Store (Play Billing would conflict with the
+  Razorpay one-time-purchase model). *APK compile + Export bridge need on-device
+  testing — not verifiable on the build host without the Android SDK.*
+
 ## [1.1.0] — 2026-07-12
 
 Product-polish release. All changes preserve the single-file architecture and

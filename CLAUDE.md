@@ -131,6 +131,9 @@ into the buyer zip under `site/download/`.
 /daily-log.html                  product source / master (edit here; APP_VERSION lives here)
 /sw.js                           service worker (only used when the app is hosted over https)
 /build.ps1                       buyer-package build → site/download/daily-log-v<ver>.zip
+/build-apk.ps1                   Android APK build (Capacitor) → site/download/*.apk
+/mobile/                         Capacitor project (see below); android/, node_modules,
+                                 www/index.html are git-ignored (regenerated)
 /CHANGELOG.md
 /CLAUDE.md
 /.gitignore                      ignores Notes, dist/, *.zip (except site/download/*.zip)
@@ -153,6 +156,21 @@ into the buyer zip under `site/download/`.
 
 **Thank-you path:** currently `dl-5wmuje4q889s`. When rotating, rename the folder AND
 update the Razorpay success-redirect URL + the confirmation-email link.
+
+### Android APK (Capacitor) — `mobile/` + `build-apk.ps1`
+- Bundles `daily-log.html` into a self-contained offline APK. `sync-web.js` copies the
+  product into `mobile/www/index.html` (product stays the single source) and injects
+  `capacitor-export.js` — an **Android-only** bridge that reroutes the Export button
+  through the Filesystem + Share plugins (a WebView can't do the blob download). The
+  bridge no-ops on web (checks `Capacitor.isNativePlatform()`), so the zip/web build is
+  unaffected. "Save to file" auto-hides on Android (FSA unsupported).
+- `build-apk.ps1`: `npm install` → sync → (first run) `cap add android` + icon gen →
+  `cap sync` → Gradle → (release) zipalign+apksigner → copies to `site/download/`.
+  Needs JDK 17 + Android SDK on the build host. **The APK compile and the Export bridge
+  are NOT verified here (no Android SDK / device) — test on a device before shipping.**
+- **Distribute as a direct download, NOT via Play Store** — Play Billing would conflict
+  with the Razorpay one-time-purchase model. Sideload = enable "unknown sources".
+- App icon source: `mobile/resources/icon.png` (1024², generated from the favicon).
 
 ### Launch checklist (before going live)
 - Replace `PIXEL_ID` (landing + thank-you) and `RAZORPAY_PAYMENT_PAGE_URL` (landing, 3 buttons).
