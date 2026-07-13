@@ -93,8 +93,8 @@ Keep everything visually consistent with this; site pages are siblings of the ap
 
 ## Business plan
 
-- **Offer:** one-time purchase. Launch price **₹499** shown against a struck-through
-  **₹999** anchor. **7-day, no-questions refund.** Positioning: *"pay once, own forever,
+- **Offer:** one-time purchase. Launch price **₹9** shown against a struck-through
+  **₹99** anchor (was ₹499/₹999). **7-day, no-questions refund.** Positioning: *"pay once, own forever,
   your data is a file you own — no subscription, no cloud."*
 - **Funnel:** Instagram ad (Meta Ads Manager, Reels) → landing page on **Cloudflare
   Pages** (Meta Pixel: `ViewContent` on load, `InitiateCheckout` on Buy click) →
@@ -207,8 +207,8 @@ update the Razorpay success-redirect URL + the confirmation-email link.
      theme toggle.
    - **f.** Version footer "Daily Log v1.x" + `CHANGELOG.md`.
 2. **Landing page** (`site/index.html`): hero + looping demo placeholder, feature beats
-   (habits/streaks, daily kanban, long-term goals, own-your-data), pricing block (₹999
-   struck → ₹499; pay once / own forever / free updates), refund line, short FAQ
+   (habits/streaks, daily kanban, long-term goals, own-your-data), pricing block (₹99
+   struck → ₹9; pay once / own forever / free updates), refund line, short FAQ
    (browser? offline? where's my data?), footer policy links. No nav, single CTA. Pixel
    snippet with placeholder `PIXEL_ID`. Buy button href placeholder
    `RAZORPAY_PAYMENT_PAGE_URL`.
