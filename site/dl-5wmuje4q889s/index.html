@@ -77,7 +77,11 @@ fbq('init', 'PIXEL_ID');
   }
   .btn-dl:hover { transform: translateY(-2px); box-shadow: 0 14px 46px rgba(94,211,154,0.24); }
   .btn-dl svg { width: 18px; height: 18px; }
-  .dl-note { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--faint); margin-top: 14px; }
+  .dl-options { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .btn-dl.secondary { background: transparent; color: var(--text); border: 1px solid var(--line-strong); box-shadow: none; }
+  .btn-dl.secondary:hover { border-color: var(--text); box-shadow: none; }
+  .dl-note { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em; color: var(--faint); margin-top: 16px; line-height: 1.7; }
+  .dl-note b { color: var(--muted); font-weight: 400; }
 
   .quickstart {
     text-align: left; margin-top: 34px; padding-top: 28px; border-top: 1px solid var(--line);
@@ -127,13 +131,23 @@ fbq('init', 'PIXEL_ID');
          let the Worker validate before responding — the button, the
          payment-id read, and the Purchase event below already stay as-is.
          ============================================================ -->
-    <a class="btn-dl" id="downloadBtn"
-       data-download="/download/daily-log-v1.1.0.zip"
-       href="/download/daily-log-v1.1.0.zip" download>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-      Download Daily Log
-    </a>
-    <div class="dl-note">daily-log-v1.1.0.zip · ~50 KB</div>
+    <div class="dl-options">
+      <a class="btn-dl" id="downloadBtn"
+         data-download="/download/daily-log-v1.1.0.zip"
+         href="/download/daily-log-v1.1.0.zip" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+        Download for any device
+      </a>
+      <a class="btn-dl secondary" id="downloadApk"
+         href="/download/daily-log-v1.1.0-release.apk" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M10 18h4"/></svg>
+        Android app (APK)
+      </a>
+    </div>
+    <div class="dl-note">
+      <b>Download for any device</b> — the file (daily-log.html + guides), works in any browser on desktop or phone.<br>
+      <b>Android app</b> — an optional native install; you may need to allow “install from unknown sources”.
+    </div>
 
     <div class="quickstart">
       <h2>Quick start</h2>
