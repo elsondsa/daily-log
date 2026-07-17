@@ -5,8 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Daily Log</title>
 <meta name="description" content="A calm daily habit, task, and long-term goal tracker. Pay once, own forever — your data is a file you own.">
-<meta name="theme-color" content="#0E1512">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#FAF9F5">
+<meta name="color-scheme" content="light dark">
+<script>
+/* Theme init — runs before paint to avoid a flash. Light is default; a stored
+   choice ("dailyLogTheme") wins, otherwise follow the OS preference. This key is
+   UI-only: it is NOT part of the data bundle, export/import, or migration. */
+(function () {
+  var KEY = "dailyLogTheme";
+  function apply(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    document.documentElement.style.colorScheme = t;
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute("content", t === "dark" ? "#12100C" : "#FAF9F5");
+  }
+  function stored() { var s = localStorage.getItem(KEY); return (s === "light" || s === "dark") ? s : null; }
+  function systemDark() { return window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches; }
+  apply(stored() || (systemDark() ? "dark" : "light"));
+  window.__toggleTheme = function () {
+    var t = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    try { localStorage.setItem(KEY, t); } catch (e) {}
+    apply(t);
+  };
+  if (window.matchMedia) {
+    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function (e) {
+      if (!stored()) apply(e.matches ? "dark" : "light");
+    });
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    var b = document.getElementById("themeToggle");
+    if (b) b.addEventListener("click", window.__toggleTheme);
+  });
+})();
+</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -15,24 +46,69 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+  /* ===== LIGHT (default) — "warm paper" ===== */
   :root {
-    --bg: #0E1512;
-    --bg-glow: radial-gradient(1200px 600px at 50% -10%, rgba(127,178,255,0.06), transparent 60%),
-               radial-gradient(900px 500px at 15% 110%, rgba(255,122,89,0.05), transparent 60%);
-    --card: #151E19;
-    --card-hi: #1A2620;
-    --line: rgba(255,255,255,0.07);
-    --line-strong: rgba(255,255,255,0.14);
-    --text: #EDF3EE;
-    --muted: #8CA094;
-    --faint: #5C6B62;
+    --bg: #FAF9F5;
+    --bg-glow: radial-gradient(1100px 560px at 50% -12%, rgba(38,103,255,0.05), transparent 60%),
+               radial-gradient(820px 480px at 12% 112%, rgba(228,87,46,0.05), transparent 60%);
+    --card: #FFFFFF;
+    --card-hi: #F5F2EA;      /* raised / inset surface */
+    --well: #F1EEE5;         /* recessed kanban wells */
+    --line: rgba(0,0,0,0.08);
+    --line-strong: rgba(0,0,0,0.14);
+    --text: #1A1A17;
+    --muted: #5F5B54;
+    --faint: #6E6A61;
+    --fill: rgba(0,0,0,0.05);        /* neutral track / count badge */
+    --cell-empty: rgba(0,0,0,0.032);  /* heatmap empty */
+    --ok:   #1E8F5B;
+    --warn: #B0740F;
+    --bad:  #C43D18;
+    --focus: #2667FF;
+    --shadow-sm: 0 1px 2px rgba(70,58,34,0.05);
+    --shadow: 0 1px 2px rgba(70,58,34,0.05), 0 6px 20px rgba(70,58,34,0.06);
+    --shadow-lg: 0 24px 60px rgba(50,40,20,0.16);
+    --scrim: rgba(30,26,18,0.42);
+    /* per-theme mixing amounts for accent-as-text (set on accent-scoped blocks) */
+    --accent-mix: 70%;
+    --accent-with: #000;
+    --picker-filter: none;
+    --picker-opacity: 0.55;
     --serif: "Fraunces", Georgia, serif;
     --sans: "Outfit", -apple-system, "Segoe UI", sans-serif;
     --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
-    --r: 16px;
+    --r: 12px;    /* cards / panels */
+    --rc: 8px;    /* controls */
+  }
+  /* ===== DARK (toggle) — deeper, higher card/bg separation ===== */
+  :root[data-theme="dark"] {
+    --bg: #12100C;
+    --bg-glow: radial-gradient(1100px 560px at 50% -12%, rgba(127,168,255,0.06), transparent 60%),
+               radial-gradient(820px 480px at 12% 112%, rgba(255,138,99,0.05), transparent 60%);
+    --card: #1C1A15;
+    --card-hi: #24211A;
+    --well: #17150F;
+    --line: rgba(255,255,255,0.10);
+    --line-strong: rgba(255,255,255,0.16);
+    --text: #F2EFE9;
+    --muted: #A7A197;
+    --faint: #8A857A;
+    --fill: rgba(255,255,255,0.06);
+    --cell-empty: rgba(255,255,255,0.06);
+    --ok:   #57D19A;
+    --warn: #F0B54B;
+    --bad:  #FF8A63;
+    --focus: #7FA8FF;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.28);
+    --shadow-lg: 0 24px 60px rgba(0,0,0,0.55);
+    --scrim: rgba(4,6,4,0.66);
+    --accent-mix: 62%;
+    --accent-with: #FFF;
+    --picker-filter: invert(1) brightness(1.4) hue-rotate(180deg);
+    --picker-opacity: 0.7;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { color-scheme: dark; }
   body {
     background: var(--bg);
     background-image: var(--bg-glow);
@@ -40,36 +116,68 @@
     color: var(--text);
     font-family: var(--sans);
     font-weight: 300;
+    font-size: 14px;
+    line-height: 1.5;
     min-height: 100vh;
-    padding: clamp(24px, 5vw, 56px) 18px 72px;
+    padding: clamp(20px, 4vw, 40px) 18px 72px;
     -webkit-font-smoothing: antialiased;
+    transition: background-color .2s ease, color .2s ease;
   }
-  .wrap { max-width: 760px; margin: 0 auto; }
-  .narrow { max-width: 620px; margin: 0 auto; }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  .narrow { max-width: 680px; margin: 0 auto; }
+  @media (max-width: 1023px) { .wrap { max-width: 720px; } }
+
+  /* focus rings — keyboard only; mouse focus stays quiet */
+  :focus { outline: none; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
   /* ================= header ================= */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; margin-bottom: 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .brand-mark {
+    width: 22px; height: 22px; flex-shrink: 0; color: var(--muted);
+    display: grid; place-items: center;
+  }
+  .brand-mark svg { width: 22px; height: 22px; }
   .eyebrow {
     font-family: var(--mono);
-    font-size: 10.5px;
-    letter-spacing: 0.32em;
+    font-size: 11px;
+    letter-spacing: 0.28em;
     text-transform: uppercase;
     color: var(--faint);
-    margin-bottom: 14px;
-    animation: rise .5s ease both;
   }
+  .theme-toggle {
+    width: 40px; height: 40px; flex-shrink: 0;
+    border-radius: var(--rc);
+    border: 1px solid var(--line);
+    background: var(--card);
+    color: var(--muted);
+    cursor: pointer;
+    display: grid; place-items: center;
+    box-shadow: var(--shadow-sm);
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+  }
+  .theme-toggle:hover { color: var(--text); border-color: var(--line-strong); }
+  .theme-toggle svg { width: 18px; height: 18px; }
+  .theme-toggle .ic-moon { display: none; }
+  :root[data-theme="dark"] .theme-toggle .ic-sun { display: none; }
+  :root[data-theme="dark"] .theme-toggle .ic-moon { display: block; }
+
   .day-title {
     font-family: var(--serif);
     font-weight: 400;
-    font-size: clamp(34px, 8vw, 46px);
-    line-height: 1.02;
-    letter-spacing: -0.01em;
-    animation: rise .5s .05s ease both;
+    font-size: clamp(28px, 5vw, 32px);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
   }
   .day-title em {
     font-style: italic;
     color: var(--muted);
-    font-size: 0.52em;
-    margin-left: 14px;
+    font-size: 0.5em;
+    margin-left: 12px;
     letter-spacing: 0.01em;
   }
 
@@ -77,20 +185,20 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin: 24px 0 18px;
-    animation: rise .5s .15s ease both;
+    margin: 16px 0 12px;
   }
   .nav-btn {
-    width: 38px; height: 38px;
-    border-radius: 12px;
+    width: 40px; height: 40px;
+    border-radius: var(--rc);
     border: 1px solid var(--line);
     background: var(--card);
     color: var(--muted);
     font-size: 17px;
     cursor: pointer;
-    transition: all .15s ease;
+    transition: color .15s ease, border-color .15s ease, transform .15s ease;
     line-height: 1;
     flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
   }
   .nav-btn:hover { border-color: var(--line-strong); color: var(--text); transform: translateY(-1px); }
   .datebar input[type="date"] {
@@ -98,34 +206,51 @@
     min-width: 0;
     border: 1px solid var(--line);
     background: var(--card);
-    border-radius: 12px;
-    height: 38px;
+    border-radius: var(--rc);
+    height: 40px;
     font-family: var(--mono);
     font-size: 13px;
     color: var(--text);
     text-align: center;
     cursor: pointer;
+    box-shadow: var(--shadow-sm);
     transition: border-color .15s ease;
   }
   .datebar input[type="date"]:hover { border-color: var(--line-strong); }
-  .datebar input::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+  .datebar input::-webkit-calendar-picker-indicator {
+    filter: var(--picker-filter); opacity: var(--picker-opacity); cursor: pointer;
+  }
   .today-btn {
     font-family: var(--mono);
     font-size: 11px;
-    letter-spacing: 0.08em;
-    height: 38px;
+    letter-spacing: 0.1em;
+    height: 40px;
     padding: 0 16px;
-    border-radius: 12px;
+    border-radius: var(--rc);
     border: none;
     background: var(--text);
     color: var(--bg);
     font-weight: 700;
     cursor: pointer;
-    transition: transform .15s ease;
+    transition: transform .15s ease, opacity .15s ease;
     flex-shrink: 0;
   }
   .today-btn:hover { transform: translateY(-1px); }
   .today-btn.hidden { display: none; }
+
+  /* one-line glanceable day summary — second-loudest element */
+  .day-status {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 16px;
+    min-height: 14px;
+  }
+  .day-status b { color: var(--text); font-weight: 700; }
+  .day-status .sep { color: var(--faint); margin: 0 8px; }
+  .day-status:empty { display: none; }
 
   /* ================= tabs ================= */
   .tabs {
@@ -133,10 +258,10 @@
     gap: 4px;
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--rc);
     padding: 4px;
-    margin-bottom: 26px;
-    animation: rise .5s .18s ease both;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
   }
   .tab {
     flex: 1;
@@ -144,13 +269,13 @@
     font-size: 11px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    padding: 9px 0;
+    padding: 10px 0;
     border: none;
-    border-radius: 9px;
+    border-radius: var(--rc);
     background: transparent;
     color: var(--faint);
     cursor: pointer;
-    transition: all .18s ease;
+    transition: color .15s ease, background-color .15s ease;
     white-space: nowrap;
   }
   .tab:hover { color: var(--muted); }
@@ -160,8 +285,10 @@
     box-shadow: inset 0 0 0 1px var(--line-strong);
   }
   .tab .count { display: inline-block; margin-left: 5px; color: var(--faint); font-weight: 400; }
+  .tab .tab-ico { display: none; }
   .view { display: none; }
-  .view.active { display: block; animation: rise .35s ease both; }
+  .view.active { display: block; animation: fade .25s ease both; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
   /* ================= section toolbar ================= */
   .section-tools {
@@ -169,117 +296,123 @@
     justify-content: flex-end;
     margin-bottom: 12px;
   }
+  /* ghost = one of the two button styles (primary is the other) */
   .ghost-btn {
     font-family: var(--mono);
     font-size: 10px;
     letter-spacing: 0.14em;
     text-transform: uppercase;
     border: 1px solid var(--line);
-    background: transparent;
-    color: var(--faint);
-    border-radius: 9px;
-    padding: 7px 13px;
+    background: var(--card);
+    color: var(--muted);
+    border-radius: var(--rc);
+    padding: 8px 14px;
     cursor: pointer;
-    transition: all .15s ease;
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
   }
-  .ghost-btn:hover, .ghost-btn.on { color: var(--text); border-color: var(--line-strong); }
+  .ghost-btn:hover, .ghost-btn.on { color: var(--text); border-color: var(--line-strong); background: var(--card-hi); }
 
   /* ================= habit cards ================= */
+  /* accent-as-text foreground, tuned per theme for AA (see :root --accent-mix) */
+  .habit { --hc-fg: color-mix(in srgb, var(--hc) var(--accent-mix), var(--accent-with)); }
   .habit {
     position: relative;
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--r);
-    padding: 18px 18px 16px;
-    margin-bottom: 12px;
+    padding: 13px 14px;
+    margin-bottom: 8px;
     overflow: hidden;
-    transition: border-color .3s ease;
+    box-shadow: var(--shadow-sm);
+    transition: border-color .15s ease, box-shadow .15s ease;
   }
   .habit::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(120deg, color-mix(in srgb, var(--hc) 14%, transparent), transparent 55%);
+    background: linear-gradient(120deg, color-mix(in srgb, var(--hc) 9%, transparent), transparent 60%);
     opacity: 0;
-    transition: opacity .4s ease;
+    transition: opacity .18s ease;
     pointer-events: none;
   }
-  .habit.done { border-color: color-mix(in srgb, var(--hc) 35%, transparent); }
+  .habit.done { border-color: color-mix(in srgb, var(--hc) 32%, var(--line)); }
   .habit.done::before { opacity: 1; }
 
-  .habit-top { display: flex; align-items: center; gap: 14px; position: relative; }
+  .habit-top { display: flex; align-items: center; gap: 12px; position: relative; min-height: 44px; }
   .habit-icon {
-    width: 40px; height: 40px;
-    border-radius: 12px;
+    width: 38px; height: 38px;
+    border-radius: 10px;
     display: grid; place-items: center;
     background: color-mix(in srgb, var(--hc) 12%, transparent);
-    color: var(--hc);
+    color: var(--hc-fg);
     flex-shrink: 0;
-    transition: background .3s ease;
+    transition: background .15s ease;
   }
-  .habit.done .habit-icon { background: color-mix(in srgb, var(--hc) 22%, transparent); }
-  .habit-icon svg { width: 20px; height: 20px; }
+  .habit.done .habit-icon { background: color-mix(in srgb, var(--hc) 20%, transparent); }
+  .habit-icon svg { width: 19px; height: 19px; }
 
   .habit-meta { flex: 1; min-width: 0; }
-  .habit-name { font-size: 16px; font-weight: 500; letter-spacing: 0.01em; }
+  .habit-name { font-size: 15px; font-weight: 500; letter-spacing: 0.01em; }
   .habit-streak {
     font-family: var(--mono);
     font-size: 10.5px;
     color: var(--faint);
-    margin-top: 3px;
+    margin-top: 2px;
     letter-spacing: 0.05em;
   }
-  .habit-streak b { color: var(--hc); font-weight: 700; }
+  .habit-streak b { color: var(--hc-fg); font-weight: 700; }
 
   .toggle {
-    width: 48px; height: 48px;
+    width: 44px; height: 44px;
     border-radius: 50%;
     border: 1.5px solid var(--line-strong);
     background: transparent;
     cursor: pointer;
     flex-shrink: 0;
     display: grid; place-items: center;
-    transition: all .2s ease;
+    transition: background-color .18s ease, border-color .18s ease, transform .15s ease, box-shadow .18s ease;
   }
   .toggle:hover { border-color: var(--hc); transform: scale(1.05); }
-  .toggle svg { width: 20px; height: 20px; stroke: var(--bg); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .toggle svg { width: 19px; height: 19px; stroke: var(--card); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .toggle svg path { stroke-dasharray: 24; stroke-dashoffset: 24; }
-  .habit.done .toggle { background: var(--hc); border-color: var(--hc); box-shadow: 0 0 18px color-mix(in srgb, var(--hc) 45%, transparent); }
+  .habit.done .toggle { background: var(--hc); border-color: var(--hc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--hc) 18%, transparent); }
   .habit.done .toggle svg path { animation: draw .35s .05s ease forwards; }
   @keyframes draw { to { stroke-dashoffset: 0; } }
 
   .note {
-    margin-top: 14px;
+    margin-top: 10px;
     width: 100%;
     border: none;
     border-bottom: 1px solid var(--line);
     background: transparent;
-    padding: 8px 2px;
+    padding: 7px 2px;
     font-family: var(--sans);
     font-weight: 300;
     font-size: 14px;
     color: var(--text);
-    transition: border-color .2s ease;
+    transition: border-color .15s ease;
   }
   .note::placeholder { color: var(--faint); }
-  .note:focus { outline: none; border-bottom-color: var(--hc); }
+  .note:focus { border-bottom-color: var(--hc); }
 
   .empty-msg {
     background: var(--card);
     border: 1px dashed var(--line-strong);
     border-radius: var(--r);
-    padding: 30px 24px;
+    padding: 28px 24px;
     text-align: center;
     color: var(--muted);
     font-size: 13.5px;
+    line-height: 1.5;
   }
 
   .future-note {
     background: var(--card);
     border: 1px dashed var(--line-strong);
     border-radius: var(--r);
-    padding: 30px 24px;
+    padding: 28px 24px;
     text-align: center;
+    box-shadow: var(--shadow-sm);
   }
   .future-note .fn-title { font-family: var(--serif); font-style: italic; font-size: 20px; margin-bottom: 8px; }
   .future-note .fn-sub { font-size: 13.5px; color: var(--muted); line-height: 1.55; max-width: 380px; margin: 0 auto 18px; }
@@ -299,7 +432,7 @@
     margin-bottom: 16px;
     display: none;
   }
-  .settings.open { display: block; animation: rise .3s ease both; }
+  .settings.open { display: block; animation: fade .2s ease both; }
   .settings h3 {
     font-family: var(--mono);
     font-size: 10px;
@@ -413,13 +546,14 @@
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: var(--r);
-    padding: 22px 20px 20px;
-    margin-top: 30px;
+    padding: 20px 18px 18px;
+    margin-top: 24px;
+    box-shadow: var(--shadow-sm);
   }
-  .history-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
-  .history-head h2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 18px; }
-  .history-head span { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--faint); text-transform: uppercase; }
-  .grid-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .history-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .history-head h2 { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 17px; }
+  .history-head span { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--faint); text-transform: uppercase; }
+  .grid-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
   .grid-row:last-of-type { margin-bottom: 0; }
   .grid-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--cc); flex-shrink: 0; }
   .grid-label {
@@ -427,74 +561,78 @@
     color: var(--muted); letter-spacing: 0.03em;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .cells { display: flex; gap: 3.5px; flex: 1; justify-content: flex-end; overflow: hidden; }
+  .cells { display: flex; gap: 3px; flex: 1; justify-content: flex-end; overflow: hidden; }
   .cell {
-    width: 11px; height: 11px; border-radius: 3.5px;
-    background: rgba(255,255,255,0.055); flex-shrink: 0; transition: transform .12s ease;
+    width: 12px; height: 12px; border-radius: 3px;
+    background: var(--cell-empty); flex-shrink: 0; transition: transform .12s ease;
   }
-  .cell:hover { transform: scale(1.35); }
-  .cell.on { background: var(--cc); box-shadow: 0 0 5px color-mix(in srgb, var(--cc) 40%, transparent); }
-  .cell.today-cell { outline: 1px solid var(--line-strong); outline-offset: 1.5px; }
+  .cell:hover { transform: scale(1.3); }
+  .cell.on { background: var(--cc); }
+  .cell.today-cell { outline: 1.5px solid var(--line-strong); outline-offset: 1.5px; }
 
-  .stats { display: flex; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .stats { display: flex; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
   .stat { flex: 1; text-align: center; border-right: 1px solid var(--line); }
   .stat:last-child { border-right: none; }
   .stat .num { font-family: var(--serif); font-size: 28px; font-weight: 600; line-height: 1; }
   .stat .num sup { font-size: 13px; color: var(--muted); font-weight: 400; }
   .stat .lbl {
     font-family: var(--mono); font-size: 9.5px; color: var(--faint);
-    text-transform: uppercase; letter-spacing: 0.18em; margin-top: 7px;
+    text-transform: uppercase; letter-spacing: 0.16em; margin-top: 7px;
   }
 
   /* ================= tasks / kanban ================= */
-  .addbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .addbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .addbar input[type="text"], .addbar select, .addbar input[type="date"] {
     border: 1px solid var(--line);
     background: var(--card);
-    border-radius: 12px;
+    border-radius: var(--rc);
     height: 42px;
     padding: 0 14px;
     font-family: var(--sans);
     font-weight: 300;
     font-size: 14px;
     color: var(--text);
+    box-shadow: var(--shadow-sm);
     transition: border-color .15s ease;
   }
-  .addbar input:focus, .addbar select:focus { outline: none; border-color: var(--line-strong); }
+  .addbar input:focus, .addbar select:focus { border-color: var(--line-strong); }
   .addbar input::placeholder { color: var(--faint); }
+  .addbar input[type="date"]::-webkit-calendar-picker-indicator { filter: var(--picker-filter); opacity: var(--picker-opacity); cursor: pointer; }
   .addbar select { font-family: var(--mono); font-size: 12px; cursor: pointer; }
   #taskText { flex: 1 1 100%; min-width: 0; }
   #taskCat { flex: 1; min-width: 110px; font-family: var(--mono); font-size: 12px; }
   #taskLT { flex: 1.4; min-width: 130px; display: none; }
   #taskLT.show { display: block; }
+  /* primary = one of the two button styles (ghost is the other) */
   .add-btn {
-    height: 42px; padding: 0 18px; border-radius: 12px; border: none;
+    height: 42px; padding: 0 18px; border-radius: var(--rc); border: none;
     background: var(--text); color: var(--bg);
     font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
-    cursor: pointer; transition: transform .15s ease; flex-shrink: 0;
+    cursor: pointer; transition: transform .15s ease, opacity .15s ease; flex-shrink: 0;
   }
   .add-btn:hover { transform: translateY(-1px); }
 
   .carryover {
-    width: 100%; margin-bottom: 14px;
+    width: 100%; margin-bottom: 12px;
     border: 1px dashed var(--line-strong); background: transparent; color: var(--muted);
     font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em;
-    border-radius: 12px; padding: 10px; cursor: pointer; transition: all .15s ease;
+    border-radius: var(--rc); padding: 11px; cursor: pointer; transition: color .15s ease, border-color .15s ease;
   }
-  .carryover:hover { color: var(--text); border-color: var(--text); }
+  .carryover:hover { color: var(--text); border-color: var(--line-strong); }
   .carryover.hidden { display: none; }
 
   .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: start; }
+  /* columns read as subtle recessed wells, not heavy boxes */
   .col {
-    background: var(--card);
-    border: 1px solid var(--line);
+    background: var(--well);
+    border: 1px solid transparent;
     border-radius: var(--r);
-    padding: 12px;
-    min-height: 180px;
+    padding: 10px;
+    min-height: 96px;
   }
-  .col-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 2px; }
+  .col-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 2px 2px 0; }
   .col-title {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.22em;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
     text-transform: uppercase; color: var(--muted);
   }
   .col-title::before {
@@ -503,57 +641,61 @@
   }
   .col-count {
     font-family: var(--mono); font-size: 10px; color: var(--faint);
-    background: rgba(255,255,255,0.05); border-radius: 999px; padding: 2px 8px;
+    background: var(--fill); border-radius: 999px; padding: 2px 8px;
   }
-  .col-empty { font-family: var(--mono); font-size: 10.5px; color: var(--faint); text-align: center; padding: 28px 6px; opacity: 0.7; }
+  .col-empty { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--faint); text-align: center; padding: 14px 6px; }
 
   .task {
-    background: var(--card-hi);
+    background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 10px 11px;
-    margin-bottom: 8px;
-    animation: pop .22s ease both;
-    transition: border-color .2s ease, opacity .2s ease;
+    border-radius: var(--rc);
+    padding: 8px 9px;
+    margin-bottom: 7px;
+    box-shadow: var(--shadow-sm);
+    animation: fade .18s ease both;
+    transition: border-color .15s ease, opacity .15s ease;
   }
+  .task:last-child { margin-bottom: 0; }
   .task:hover { border-color: var(--line-strong); }
-  .task.is-done { opacity: 0.65; }
+  .task.is-done { opacity: 0.62; }
   .task.is-done .task-text { text-decoration: line-through; text-decoration-color: var(--faint); }
-  @keyframes pop {
-    from { opacity: 0; transform: scale(0.96) translateY(4px); }
-    to   { opacity: 1; transform: scale(1) translateY(0); }
-  }
-  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px; }
+  .task { --tc-fg: color-mix(in srgb, var(--tc) var(--accent-mix), var(--accent-with)); --lc-fg: color-mix(in srgb, var(--lc) var(--accent-mix), var(--accent-with)); }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
   .task-chip {
     display: inline-block;
+    --tc-fg: color-mix(in srgb, var(--tc) var(--accent-mix), var(--accent-with));
     font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--tc); background: color-mix(in srgb, var(--tc) 13%, transparent);
+    color: var(--tc-fg); background: color-mix(in srgb, var(--tc) 14%, transparent);
     border-radius: 999px; padding: 3px 9px;
   }
   .lt-chip {
     display: inline-block;
+    --lc-fg: color-mix(in srgb, var(--lc) var(--accent-mix), var(--accent-with));
     font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--lc); background: transparent;
+    color: var(--lc-fg); background: transparent;
     border: 1px solid color-mix(in srgb, var(--lc) 45%, transparent);
     border-radius: 999px; padding: 2px 9px;
     max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .task-text { font-size: 13.5px; font-weight: 400; line-height: 1.45; word-break: break-word; }
-  .task-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 9px; }
+  /* actions hover-reveal on desktop; always-visible on touch (see @media hover:none) */
+  .task-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; opacity: 0; transition: opacity .15s ease; }
+  .task:hover .task-actions, .task:focus-within .task-actions { opacity: 1; }
   .t-btn {
-    width: 28px; height: 28px; border-radius: 9px;
+    width: 28px; height: 28px; border-radius: var(--rc);
     border: 1px solid var(--line); background: transparent; color: var(--muted);
-    font-size: 13px; line-height: 1; cursor: pointer; transition: all .15s ease;
+    font-size: 13px; line-height: 1; cursor: pointer; transition: color .15s ease, border-color .15s ease, background-color .15s ease;
     display: grid; place-items: center;
   }
-  .t-btn:hover { color: var(--text); border-color: var(--line-strong); transform: translateY(-1px); }
+  .t-btn:hover { color: var(--text); border-color: var(--line-strong); }
   .t-btn.fwd {
+    --tc-fg: color-mix(in srgb, var(--tc) var(--accent-mix), var(--accent-with));
     background: color-mix(in srgb, var(--tc) 16%, transparent);
     border-color: color-mix(in srgb, var(--tc) 35%, transparent);
-    color: var(--tc); font-weight: 700;
+    color: var(--tc-fg); font-weight: 700;
   }
-  .t-btn.fwd:hover { background: var(--tc); color: var(--bg); }
-  .t-btn.del:hover { color: #FF7A59; border-color: rgba(255,122,89,0.4); }
+  .t-btn.fwd:hover { background: var(--tc); color: var(--card); }
+  .t-btn.del:hover { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
 
   .task-summary {
     margin-top: 18px; text-align: center;
@@ -566,47 +708,47 @@
   .lt-card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-left: 4px solid var(--lc);
+    border-left: 3px solid var(--lc);
     border-radius: var(--r);
-    padding: 16px 18px;
-    margin-bottom: 12px;
-    animation: pop .22s ease both;
+    padding: 15px 16px;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-sm);
+    animation: fade .18s ease both;
   }
   .lt-card.completed { opacity: 0.6; }
   .lt-card.completed .lt-title { text-decoration: line-through; text-decoration-color: var(--faint); }
   .lt-top { display: flex; align-items: flex-start; gap: 12px; }
   .lt-main { flex: 1; min-width: 0; }
-  .lt-title { font-size: 16px; font-weight: 500; word-break: break-word; }
+  .lt-title { font-size: 15px; font-weight: 500; word-break: break-word; }
   .lt-eta {
     font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.05em;
     color: var(--faint); margin-top: 4px;
   }
   .lt-eta b { color: var(--text); font-weight: 700; }
-  .lt-eta .overdue { color: #FF7A59; font-weight: 700; }
-  .lt-eta .soon { color: #F2B33D; font-weight: 700; }
+  .lt-eta .overdue { color: var(--bad); font-weight: 700; }
+  .lt-eta .soon { color: var(--warn); font-weight: 700; }
   .lt-actions { display: flex; gap: 6px; flex-shrink: 0; }
-  .lt-progress { margin-top: 14px; }
+  .lt-progress { margin-top: 13px; }
   .lt-bar {
-    height: 6px; border-radius: 999px;
-    background: rgba(255,255,255,0.06);
+    height: 4px; border-radius: 999px;
+    background: var(--fill);
     overflow: hidden;
   }
   .lt-bar > div {
     height: 100%;
     background: var(--lc);
     border-radius: 999px;
-    box-shadow: 0 0 8px color-mix(in srgb, var(--lc) 50%, transparent);
     transition: width .4s ease;
   }
   .lt-nums {
     display: flex; justify-content: space-between;
     font-family: var(--mono); font-size: 10px; color: var(--faint);
-    margin-top: 7px; letter-spacing: 0.06em;
+    margin-top: 8px; letter-spacing: 0.06em;
   }
   .lt-nums b { color: var(--text); }
   .lt-done-head {
     font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--faint); margin: 22px 0 10px;
+    color: var(--faint); margin: 20px 0 8px;
   }
 
   /* ================= weekly review ================= */
@@ -622,7 +764,7 @@
   }
   .rv-section {
     background: var(--card); border: 1px solid var(--line); border-radius: var(--r);
-    padding: 18px 18px 16px; margin-bottom: 12px; animation: rise .35s ease both;
+    padding: 18px 18px 16px; margin-bottom: 8px; box-shadow: var(--shadow-sm);
   }
   .rv-h {
     font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
@@ -644,10 +786,10 @@
   }
   .rv-col.today { color: var(--text); }
   .rv-cell {
-    height: 26px; border-radius: 7px; background: rgba(255,255,255,0.05);
+    height: 26px; border-radius: 7px; background: var(--cell-empty);
     transition: transform .12s ease;
   }
-  .rv-cell.on { background: var(--cc); box-shadow: 0 0 7px color-mix(in srgb, var(--cc) 40%, transparent); }
+  .rv-cell.on { background: var(--cc); }
   .rv-cell.today { outline: 1px solid var(--line-strong); outline-offset: 1.5px; }
   .rv-cell.future { opacity: 0.35; }
   .rv-cell:hover { transform: scale(1.08); }
@@ -659,7 +801,7 @@
   .rv-catrow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
   .rv-catn { font-family: var(--mono); font-size: 11px; color: var(--faint); }
   .rv-catn b { color: var(--text); font-weight: 700; }
-  .rv-catbar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .rv-catbar { height: 4px; border-radius: 999px; background: var(--fill); overflow: hidden; }
   .rv-catbar > div { height: 100%; border-radius: 999px; transition: width .4s ease; }
   .rv-tasktot {
     margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
@@ -670,10 +812,10 @@
   /* LT momentum */
   .rv-lt { display: flex; align-items: center; gap: 11px; padding: 8px 0; border-bottom: 1px solid var(--line); }
   .rv-lt:last-child { border-bottom: none; }
-  .rv-ltdot { width: 8px; height: 8px; border-radius: 50%; background: var(--lc); flex-shrink: 0; box-shadow: 0 0 7px color-mix(in srgb, var(--lc) 45%, transparent); }
+  .rv-ltdot { width: 8px; height: 8px; border-radius: 50%; background: var(--lc); flex-shrink: 0; }
   .rv-ltname { flex: 1; min-width: 0; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .rv-ltn { font-family: var(--mono); font-size: 10.5px; color: var(--faint); flex-shrink: 0; }
-  .rv-ltn b { color: var(--lc); font-weight: 700; }
+  .rv-ltn b { color: color-mix(in srgb, var(--lc) var(--accent-mix), var(--accent-with)); font-weight: 700; }
   .rv-quiet { color: var(--faint); }
   .rv-empty { font-size: 13px; color: var(--faint); text-align: center; padding: 10px 0 4px; }
   /* week note */
@@ -687,36 +829,37 @@
   .rv-note:focus { outline: none; border-color: var(--line-strong); }
 
   /* ================= footer ================= */
-  .databar { display: flex; gap: 10px; margin-top: 26px; justify-content: center; animation: rise .5s .45s ease both; }
+  .databar { display: flex; gap: 8px; margin-top: 24px; justify-content: center; flex-wrap: wrap; }
   .databar button, .databar label {
     font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase;
-    border: 1px solid var(--line); background: transparent; color: var(--faint);
-    border-radius: 10px; padding: 9px 16px; cursor: pointer; transition: all .15s ease;
+    border: 1px solid var(--line); background: var(--card); color: var(--muted);
+    border-radius: var(--rc); padding: 9px 16px; cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
   }
-  .databar button:hover, .databar label:hover { color: var(--text); border-color: var(--line-strong); }
+  .databar button:hover, .databar label:hover { color: var(--text); border-color: var(--line-strong); background: var(--card-hi); }
   #importFile { display: none; }
   .databar [hidden] { display: none !important; }
 
   /* primary "save to file" action stands a touch above the fallbacks */
   .databar button.data-primary {
-    color: var(--muted);
+    color: var(--text);
     border-color: var(--line-strong);
   }
-  .databar button.data-primary:hover { color: var(--text); }
 
   .file-status {
     display: inline-flex; align-items: center; gap: 9px;
     font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.06em;
     color: var(--muted);
-    border: 1px solid color-mix(in srgb, #5ED39A 40%, var(--line));
-    background: color-mix(in srgb, #5ED39A 8%, transparent);
-    border-radius: 10px; padding: 8px 10px 8px 13px;
+    border: 1px solid color-mix(in srgb, var(--ok) 40%, var(--line));
+    background: color-mix(in srgb, var(--ok) 10%, var(--card));
+    border-radius: var(--rc); padding: 8px 10px 8px 13px;
     max-width: 100%;
   }
   .file-status .fs-dot {
     width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-    background: #5ED39A; box-shadow: 0 0 7px color-mix(in srgb, #5ED39A 60%, transparent);
-    transition: background .2s ease, box-shadow .2s ease;
+    background: var(--ok);
+    transition: background .2s ease;
   }
   .file-status .fs-name { color: var(--text); text-transform: none; letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 190px; }
   .file-status .fs-state { color: var(--faint); }
@@ -727,10 +870,10 @@
     transition: color .15s ease;
   }
   .file-status .fs-x:hover { color: var(--text); }
-  .file-status.warn { border-color: color-mix(in srgb, #F2B33D 45%, var(--line)); background: color-mix(in srgb, #F2B33D 8%, transparent); }
-  .file-status.warn .fs-dot { background: #F2B33D; box-shadow: 0 0 7px color-mix(in srgb, #F2B33D 60%, transparent); }
-  .file-status.err { border-color: color-mix(in srgb, #FF7A59 45%, var(--line)); background: color-mix(in srgb, #FF7A59 8%, transparent); }
-  .file-status.err .fs-dot { background: #FF7A59; box-shadow: 0 0 7px color-mix(in srgb, #FF7A59 60%, transparent); }
+  .file-status.warn { border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); background: color-mix(in srgb, var(--warn) 10%, var(--card)); }
+  .file-status.warn .fs-dot { background: var(--warn); }
+  .file-status.err { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); background: color-mix(in srgb, var(--bad) 10%, var(--card)); }
+  .file-status.err .fs-dot { background: var(--bad); }
   @keyframes fs-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
   .file-status.saving .fs-dot { animation: fs-pulse .9s ease-in-out infinite; }
 
@@ -738,7 +881,6 @@
     text-align: center; margin-top: 16px;
     font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
     text-transform: uppercase; color: var(--faint);
-    animation: rise .5s .5s ease both;
   }
 
   .saved-flash {
@@ -747,33 +889,32 @@
     background: var(--text); color: var(--bg);
     font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
     padding: 9px 18px; border-radius: 999px;
+    box-shadow: var(--shadow);
     transition: transform .3s cubic-bezier(.2,.9,.3,1.2);
     pointer-events: none; z-index: 10;
   }
   .saved-flash.show { transform: translateX(-50%) translateY(0); }
-
-  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
   /* ================= first-run welcome ================= */
   .welcome-scrim {
     position: fixed; inset: 0; z-index: 50;
     display: grid; place-items: center;
     padding: 20px;
-    background: rgba(6, 10, 8, 0.72);
+    background: var(--scrim);
     -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
-    animation: rise .3s ease both;
+    animation: fade .25s ease both;
     overflow-y: auto;
   }
   .welcome-scrim[hidden] { display: none; }
   .welcome-card {
     background: var(--card);
-    background-image: radial-gradient(600px 300px at 50% -20%, rgba(127,178,255,0.08), transparent 60%);
+    background-image: radial-gradient(600px 300px at 50% -20%, color-mix(in srgb, var(--focus) 12%, transparent), transparent 60%);
     border: 1px solid var(--line-strong);
-    border-radius: 20px;
+    border-radius: 16px;
     padding: clamp(24px, 5vw, 34px);
     max-width: 440px; width: 100%;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
-    animation: rise .4s .05s ease both;
+    box-shadow: var(--shadow-lg);
+    animation: fade .3s .02s ease both;
   }
   .welcome-eyebrow {
     font-family: var(--mono); font-size: 10px; letter-spacing: 0.3em;
@@ -813,17 +954,17 @@
   .celebrate-inner { text-align: center; transform: scale(0.9); }
   .celebrate.show .celebrate-inner { animation: celebrate-pop .6s cubic-bezier(.2,.9,.3,1.4) forwards; }
   .celebrate-mark {
-    font-size: 44px; line-height: 1; color: #5ED39A;
-    text-shadow: 0 0 28px color-mix(in srgb, #5ED39A 70%, transparent);
+    font-size: 44px; line-height: 1; color: var(--ok);
+    text-shadow: 0 0 28px color-mix(in srgb, var(--ok) 70%, transparent);
     margin-bottom: 8px;
   }
   .celebrate-text {
     font-family: var(--serif); font-style: italic; font-size: 26px; color: var(--text);
-    text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+    text-shadow: 0 2px 24px var(--scrim);
   }
   .celebrate::before {
     content: ""; position: absolute; width: 340px; height: 340px; border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, #5ED39A 22%, transparent), transparent 62%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--ok) 22%, transparent), transparent 62%);
   }
   @keyframes celebrate-fade { 0% { opacity: 0; } 15% { opacity: 1; } 78% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes celebrate-pop { 0% { transform: scale(0.8); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
@@ -832,20 +973,45 @@
     .celebrate.show .celebrate-inner { animation: none; transform: scale(1); }
   }
 
-  @media (max-width: 640px) {
+  /* ================= responsive ================= */
+  /* MOBILE (<640px): single column, thumb-first, tabs pinned to the bottom. */
+  @media (max-width: 639px) {
+    body { padding: clamp(16px, 5vw, 24px) 14px calc(84px + env(safe-area-inset-bottom)); }
     .board { grid-template-columns: 1fr; }
     .col { min-height: 0; }
-  }
-  @media (max-width: 520px) {
-    /* 4 tabs must fit on a phone: drop the count badges, tighten the row */
-    .tabs { gap: 3px; }
-    .tab { font-size: 10px; letter-spacing: 0.05em; padding: 9px 4px; min-width: 0; }
+
+    /* bottom tab bar */
+    .tabs {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+      margin: 0; border-radius: 0; border: none; border-top: 1px solid var(--line);
+      background: var(--card);
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+      gap: 2px; box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    }
+    :root[data-theme="dark"] .tabs { box-shadow: 0 -4px 20px rgba(0,0,0,0.4); }
+    .tab {
+      flex-direction: column; gap: 3px;
+      min-height: 52px; padding: 7px 2px 6px;
+      font-size: 9.5px; letter-spacing: 0.06em;
+    }
+    .tab.active { box-shadow: none; background: transparent; color: var(--focus); }
+    .tab .tab-ico { display: block; width: 20px; height: 20px; }
     .tab .count { display: none; }
+
+    /* tap targets ≥44px */
+    .nav-btn { width: 44px; height: 44px; }
+    .today-btn { height: 44px; }
+    .datebar input[type="date"] { height: 44px; }
+    .add-btn { height: 46px; }
+    .t-btn, .icon-btn { width: 40px; height: 40px; }
   }
-  @media (max-width: 480px) {
+  @media (max-width: 420px) {
     .grid-label { width: 52px; }
-    .cell { width: 9px; height: 9px; }
-    .day-title em { display: block; margin: 8px 0 0; }
+    .day-title em { display: block; margin: 6px 0 0; margin-left: 0; }
+  }
+  /* touch devices: task actions always visible (but quiet) */
+  @media (hover: none) {
+    .task-actions { opacity: 1; }
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -856,7 +1022,18 @@
 <div class="wrap">
   <div class="narrow">
     <header>
-      <div class="eyebrow">Daily Log</div>
+      <div class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4.5" width="16" height="16" rx="4"/><path d="M8.5 12.5 L11 15 L15.5 9.5"/></svg>
+          </span>
+          <span class="eyebrow">Daily Log</span>
+        </div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Switch light / dark theme" title="Switch theme">
+          <svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3 V5 M12 19 V21 M3 12 H5 M19 12 H21 M5.6 5.6 L7 7 M17 17 L18.4 18.4 M18.4 5.6 L17 7 M7 17 L5.6 18.4"/></svg>
+          <svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13.5 A8 8 0 1 1 10.5 4 A6.5 6.5 0 0 0 20 13.5 Z"/></svg>
+        </button>
+      </div>
       <h1 class="day-title" id="dayTitle"></h1>
       <div class="datebar">
         <button class="nav-btn" id="prevDay" aria-label="Previous day">‹</button>
@@ -864,11 +1041,20 @@
         <button class="nav-btn" id="nextDay" aria-label="Next day">›</button>
         <button class="today-btn" id="jumpToday">TODAY</button>
       </div>
-      <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="habits" role="tab">Habits<span class="count" id="habitTabCount"></span></button>
-        <button class="tab" data-tab="tasks" role="tab">Tasks<span class="count" id="taskTabCount"></span></button>
-        <button class="tab" data-tab="longterm" role="tab">Long&nbsp;term<span class="count" id="ltTabCount"></span></button>
-        <button class="tab" data-tab="review" role="tab">Review</button>
+      <div class="day-status" id="dayStatus" aria-live="polite"></div>
+      <nav class="tabs" role="tablist" aria-label="Views">
+        <button class="tab active" data-tab="habits" role="tab" aria-selected="true">
+          <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 L9 17 L4 12"/></svg>
+          <span class="tab-label">Habits</span><span class="count" id="habitTabCount"></span></button>
+        <button class="tab" data-tab="tasks" role="tab" aria-selected="false">
+          <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M9 5 V19 M15 5 V19" opacity="0.6"/></svg>
+          <span class="tab-label">Tasks</span><span class="count" id="taskTabCount"></span></button>
+        <button class="tab" data-tab="longterm" role="tab" aria-selected="false">
+          <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>
+          <span class="tab-label">Long&nbsp;term</span><span class="count" id="ltTabCount"></span></button>
+        <button class="tab" data-tab="review" role="tab" aria-selected="false">
+          <svg class="tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4 H19 V20 L12 16 L5 20 Z"/></svg>
+          <span class="tab-label">Review</span></button>
       </nav>
     </header>
   </div>
@@ -905,11 +1091,11 @@
         <div class="col-head"><span class="col-title">To do</span><span class="col-count" id="count-todo">0</span></div>
         <div id="col-todo"></div>
       </div>
-      <div class="col" style="--col-c: #F2B33D">
+      <div class="col" style="--col-c: var(--warn)">
         <div class="col-head"><span class="col-title">Doing</span><span class="col-count" id="count-doing">0</span></div>
         <div id="col-doing"></div>
       </div>
-      <div class="col" style="--col-c: #5ED39A">
+      <div class="col" style="--col-c: var(--ok)">
         <div class="col-head"><span class="col-title">Done</span><span class="col-count" id="count-done">0</span></div>
         <div id="col-done"></div>
       </div>
@@ -964,9 +1150,9 @@
     <h2 id="welcomeTitle">Your day, <em>on the record.</em></h2>
     <p class="welcome-sub">Daily Log keeps three things in one calm place — and it all lives in a file that stays yours. No account, no cloud, no subscription.</p>
     <ul class="welcome-points">
-      <li><span class="wp-dot" style="--wc:#FF7A59"></span><b>Habits</b> — check them off, build streaks, watch the record fill in.</li>
-      <li><span class="wp-dot" style="--wc:#7FB2FF"></span><b>Tasks</b> — a simple board for each day: to do, doing, done.</li>
-      <li><span class="wp-dot" style="--wc:#5ED39A"></span><b>Long term</b> — the big goals, fed by the small daily tasks you link to them.</li>
+      <li><span class="wp-dot" style="--wc:#E4572E"></span><b>Habits</b> — check them off, build streaks, watch the record fill in.</li>
+      <li><span class="wp-dot" style="--wc:#2667FF"></span><b>Tasks</b> — a simple board for each day: to do, doing, done.</li>
+      <li><span class="wp-dot" style="--wc:#2FA36B"></span><b>Long term</b> — the big goals, fed by the small daily tasks you link to them.</li>
     </ul>
     <div class="welcome-tip">
       <b>Keep a copy you own.</b> Use <em>Save to file</em> at the bottom — it auto-saves as you go. You can also <em>Install</em> / <em>Add to Home Screen</em> for a full-screen, app-like Daily Log.
@@ -997,8 +1183,8 @@ const HCONF_KEY   = "habitsConfig";       // [ {id, name, color, icon, placehold
 const LT_KEY      = "longTermTasks";      // [ {id, title, eta, color, status, createdAt} ]
 const WNOTES_KEY  = "weekNotes";          // { weekStartKey(Mon): noteText }
 
-const APP_VERSION = "1.1.0";
-const PALETTE = ["#FF7A59", "#F2B33D", "#7FB2FF", "#5ED39A", "#B08CFF", "#FF8FB1", "#6FD6D0"];
+const APP_VERSION = "1.2.0";
+const PALETTE = ["#E4572E", "#C8871E", "#2667FF", "#2FA36B", "#8B5CF6", "#E24A78", "#0FA3A3"];
 const STATUSES = ["todo", "doing", "done"];
 
 /* ============================================================
@@ -1058,9 +1244,9 @@ const isFirstRun = !hconf && !hadHabitHistory
 // the app and points people to "Manage habits" to make them their own.
 if (!hconf) {
   hconf = [
-    { id: "exercise", name: "Exercise",            color: "#FF7A59", icon: "dumbbell", placeholder: "What did you do? — 30 min run, gym: legs…", archived: false },
-    { id: "protein",  name: "Protein intake",      color: "#F2B33D", icon: "egg",      placeholder: "Roughly how much? — ~120 g…", archived: false },
-    { id: "learning", name: "Learn something new", color: "#7FB2FF", icon: "book",     placeholder: "What did you learn today?", archived: false }
+    { id: "exercise", name: "Exercise",            color: "#E4572E", icon: "dumbbell", placeholder: "What did you do? — 30 min run, gym: legs…", archived: false },
+    { id: "protein",  name: "Protein intake",      color: "#C8871E", icon: "egg",      placeholder: "Roughly how much? — ~120 g…", archived: false },
+    { id: "learning", name: "Learn something new", color: "#2667FF", icon: "book",     placeholder: "What did you learn today?", archived: false }
   ];
   localStorage.setItem(HCONF_KEY, JSON.stringify(hconf));
 }
@@ -1157,6 +1343,23 @@ function renderHeader() {
   document.getElementById("taskTabCount").textContent = openToday ? "· " + openToday : "";
   const nActive = activeLTs().length;
   document.getElementById("ltTabCount").textContent = nActive ? "· " + nActive : "";
+
+  // one-line glanceable day status (mono)
+  const statusEl = document.getElementById("dayStatus");
+  if (statusEl) {
+    const parts = [];
+    if (currentDate > todayKey()) {
+      parts.push("Planning ahead");
+    } else if (ah.length) {
+      parts.push(doneCount === ah.length ? "All habits done" : `<b>${doneCount}</b> / ${ah.length} habits`);
+    }
+    const dayTasks = tasksFor(currentDate);
+    const openHere = dayTasks.filter(t => t.status !== "done").length;
+    if (dayTasks.length) {
+      parts.push(openHere ? `<b>${openHere}</b> task${openHere === 1 ? "" : "s"} open` : "Tasks clear");
+    }
+    statusEl.innerHTML = parts.length ? parts.join('<span class="sep">·</span>') : "";
+  }
 }
 
 /* ============================================================

@@ -72,22 +72,75 @@ Single self-contained HTML file, all data in localStorage, no backend. Three tab
 
 ---
 
-## Design system — "evening ledger" (dark)
+## Design system — "warm paper" (light default + dark toggle)
 
-Keep everything visually consistent with this; site pages are siblings of the app.
+Redesigned 2026-07-17, shipped as **v1.2.0** (full UI overhaul; **UI layer only — no
+data/logic change**, `APP_VERSION` `1.2.0`, bundle shape untouched). **Light is the default
+theme**; dark is a persisted toggle. Site pages still carry the old dark "evening
+ledger" look — restyle them to match this next. Everything is driven by CSS custom
+properties in two `:root` blocks, so theme = swap tokens, nothing else.
 
-- **Background** `#0E1512` with subtle radial glows (blue top, orange bottom-left),
-  `background-attachment: fixed`.
-- **Cards** `#151E19` (`--card`), `#1A2620` (`--card-hi`).
-- **Lines** `rgba(255,255,255,0.07)` (`--line`), `rgba(255,255,255,0.14)` (`--line-strong`).
-- **Text** `#EDF3EE`, **muted** `#8CA094`, **faint** `#5C6B62`.
-- **Accent palette (7):** `#FF7A59 #F2B33D #7FB2FF #5ED39A #B08CFF #FF8FB1 #6FD6D0`.
-- **Fonts (Google, graceful fallbacks):**
-  - `Fraunces` — display / serif, italic accents (headings, numbers).
-  - `Outfit` — body, weight 300.
-  - `JetBrains Mono` — labels: uppercase, letter-spaced.
-- **Detail:** 16px card radius (`--r`), `color-mix` glows keyed off each item's color,
-  subtle `rise` / `pop` animations, `prefers-reduced-motion` fully honored.
+### Theming mechanism (important)
+- **`:root`** holds LIGHT tokens (default). **`:root[data-theme="dark"]`** overrides
+  them. An **inline `<script>` in `<head>`** (before paint, before CSS) sets
+  `data-theme` on `<html>` from a stored choice or the OS `prefers-color-scheme` — this
+  avoids a flash. It also exposes `window.__toggleTheme` and wires the header
+  `#themeToggle` on `DOMContentLoaded`, and live-follows the OS while the user hasn't
+  chosen.
+- **Theme choice is stored under `localStorage["dailyLogTheme"]`** (`"light"`/`"dark"`).
+  This is **UI-only** — NOT a data key, NOT in the export/import bundle, NOT migrated.
+  Never add it to `serializeBundle`.
+- **No hardcoded theme colors in component CSS** — everything routes through tokens
+  (`--bg --card --card-hi --well --line --line-strong --text --muted --faint --fill
+  --cell-empty --ok --warn --bad --focus --shadow[-sm/-lg] --scrim`). If you add a
+  component, use tokens so both themes + reduced-motion just work.
+
+### Accent palette (habits / categories / goals) — dual-theme AA
+- **Stored value = mid-tone** (used for fills, dots, bars, borders, glows):
+  `#E4572E #C8871E #2667FF #2FA36B #8B5CF6 #E24A78 #0FA3A3`. This is the `PALETTE`
+  constant + the 3 seeded-habit colors in the JS. **A single hex can't be AA as small
+  text on both a white and a dark card**, so accent *text* is derived per theme via
+  `color-mix(in srgb, var(--x) var(--accent-mix), var(--accent-with))` — darkened 30%
+  in light (`--accent-mix:70%`, `--accent-with:#000`), lightened in dark (`62%`/`#FFF`).
+  Elements set a local `--hc-fg`/`--tc-fg`/`--lc-fg` for this (see `.habit`, `.task`,
+  `.task-chip`, `.lt-chip`, `.t-btn.fwd`). All neutrals + accents verified ≥4.5:1 in
+  both themes.
+- **Semantic:** `--ok` green, `--warn` amber, `--bad` coral — used by kanban column
+  dots, LT urgency (overdue/soon), file-status, del-hover, celebration. Never hardcode
+  `#FF7A59`/`#F2B33D`/`#5ED39A` again.
+
+### Tokens / language
+- **Light:** bg `#FAF9F5`, card `#FFFFFF`, card-hi `#F5F2EA`, well `#F1EEE5`,
+  hairlines `rgba(0,0,0,0.08)`/`0.14`, ink `#1A1A17`, muted `#5F5B54`, faint `#6E6A61`.
+- **Dark:** bg `#12100C`, card `#1C1A15`, card-hi `#24211A`, well `#17150F`, hairlines
+  `rgba(255,255,255,0.10)`/`0.16`, text `#F2EFE9`. Higher card/bg separation than the
+  old muddy dark. **No pure `#000`/`#FFF`** for ink/bg (cards are `#FFFFFF` by spec).
+- **Radius language (one system):** `--r:12px` cards/panels, `--rc:8px` controls,
+  `999px` pills (chips, count badges), circles (toggle, swatches, dots).
+- **Two button styles only:** primary (ink bg / paper text — `.today-btn .add-btn
+  .btn-primary`) and ghost (`.ghost-btn`, databar). Soft warm-tinted `--shadow*`.
+- **Fonts (Google, graceful fallbacks):** `Fraunces` display/serif, `Outfit` body 300,
+  `JetBrains Mono` micro-labels (uppercase, letter-spaced, ≤11px — never sentences).
+- **Type scale:** display 28–32px (the date is *not* the hero), section 17px, body 14px
+  (line-height 1.5), meta/mono 11px. Header has a mono **day-status** line
+  (`#dayStatus`, set in `renderHeader`) as the glanceable summary.
+- **Motion:** 120–180ms ease-out; the old staggered `rise` page-load is gone — a single
+  `fade` (`@keyframes fade`, 250ms) on `.view.active`. `prefers-reduced-motion` still
+  globally kills animation + transition.
+
+### Layout
+- **Mobile <640px:** single column; **tabs become a fixed bottom bar** (`.tabs`
+  position:fixed) with stacked icon+label; body gets bottom padding + safe-area insets;
+  tap targets bumped to ≥44px; task actions always-visible on touch (`@media hover:none`).
+- **Tablet ≤1023px:** `.wrap` capped at 720px. **Desktop ≥1024px:** `.wrap` 920px
+  centered; reading columns (`.narrow`) 680px. Task actions hover-reveal on desktop.
+- **Header:** `.topbar` (brand + `#themeToggle`) → day-title → datebar (‹ date › TODAY)
+  → day-status → tabs. Date input themed via `--picker-filter`/`--picker-opacity`.
+
+> **Verifying the redesign:** Chrome here enforces a **512px min layout width**, so
+> `--window-size` below that renders a 512-wide layout into a smaller image (looks
+> "cut" but isn't). To truly test 375px, embed the page in a `width:375px` iframe and
+> screenshot the wrapper (see session scratchpad `gen.js`/`probe3.js`/`frame375.html`).
 
 ---
 
@@ -145,7 +198,7 @@ into the buyer zip under `site/download/`.
   terms.html  privacy.html  refunds.html   policy pages (placeholders to fill before launch)
   404.html                       redirects to /
   assets/favicon.svg             app icon (og.png / demo.mp4 still TODO before launch)
-  download/daily-log-v1.1.0.zip  buyer zip (COMMITTED so Pages serves it)
+  download/daily-log-v1.2.0.zip  buyer zip (COMMITTED so Pages serves it)
 
 /package/                        buyer-package sources (not shipped as-is)
   START-HERE.html                setup guide (goes in the zip)
